@@ -1,9 +1,17 @@
 import { Link } from 'react-router-dom'
-import { Facebook, Instagram, Youtube, Search, Equal, MapPin, Phone, Share2, ChevronUp, MessageCircleMore, Mail, ClipboardPenLine } from 'lucide-react'
+import {
+  Facebook,
+  Instagram,
+  Youtube,
+  Equal,
+  Phone,
+  MessageCircleMore,
+  Mail,
+  ClipboardPenLine,
+} from 'lucide-react'
 import AuthTopbar from '../../components/auth/AuthTopbar'
 import { useLanguage } from '../../context/LanguageContext'
 import { landingText } from '../../locales/landingText'
-import logoBankJatim from '../../assets/images/logo-bankjatim.png'
 import dashboardPrev1 from '../../assets/images/Dashboard-prev1.png'
 import dashboardPrev2 from '../../assets/images/Dashboard-prev2.png'
 
@@ -15,7 +23,12 @@ const socialIcons = {
   Youtube,
 }
 
-const sideActions = [Search, Equal, MapPin, Phone, Share2]
+const contactActionIcons = {
+  phone: Phone,
+  email: Mail,
+  form: ClipboardPenLine,
+  chat: MessageCircleMore,
+}
 
 export default function LandingPage() {
   const { language } = useLanguage()
@@ -123,9 +136,11 @@ export default function LandingPage() {
           <div className="landing-social-strip">
             <div className="landing-social-strip-inner">
               <span>{text.footer.followUs}</span>
+
               <div className="landing-social-links">
                 {text.footer.socials.map((item) => {
                   const Icon = socialIcons[item] || Facebook
+
                   return (
                     <a key={item} href="#contact">
                       <Icon size={20} strokeWidth={2} />
@@ -141,9 +156,12 @@ export default function LandingPage() {
             <div className="landing-contact-grid">
               <div className="landing-contact-column landing-contact-column-left">
                 <h3>{text.contact.headquartersTitle}</h3>
-                {text.contact.headquarters.map((line) => (
-                  <p key={line}>{line}</p>
-                ))}
+
+                <div className="landing-contact-address">
+                  {text.contact.headquarters.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                </div>
               </div>
 
               <div className="landing-contact-column landing-contact-column-right">
@@ -152,13 +170,8 @@ export default function LandingPage() {
 
                 <div className="landing-contact-actions">
                   {text.contact.actions.map((action) => {
-                    const icons = {
-                      phone: Phone,
-                      email: Mail,
-                      form: ClipboardPenLine,
-                      chat: MessageCircleMore,
-                    }
-                    const Icon = icons[action.icon]
+                    const Icon = contactActionIcons[action.icon]
+
                     return (
                       <a key={action.label} href="#contact" className="landing-contact-action">
                         <Icon size={24} strokeWidth={2} />
@@ -182,26 +195,8 @@ export default function LandingPage() {
 
               <div className="landing-footer-meta">
                 <p>{text.footer.copyright}</p>
-                <div className="landing-footer-badges">
-                  <span>bpd</span>
-                  <span>Edukasi Masyarakat</span>
-                  <span>Ayo ke Bank</span>
-                  <span>IB</span>
-                </div>
               </div>
             </div>
-          </div>
-
-          <div className="landing-side-toolbar" aria-hidden="true">
-            {sideActions.map((Icon, index) => (
-              <button key={index} type="button">
-                <Icon size={18} strokeWidth={2} />
-              </button>
-            ))}
-            <div className="landing-side-spacer" />
-            <button type="button" className="landing-scroll-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-              <ChevronUp size={20} strokeWidth={2.5} />
-            </button>
           </div>
         </section>
       </main>
