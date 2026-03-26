@@ -532,7 +532,7 @@ body {
 }
 
 /* responsive */
-@media (max-width: 1200px) {
+@media (max-width: 1280px) {
   .landing-section-content,
   .landing-navbar-inner,
   .landing-social-strip-inner {
@@ -560,6 +560,18 @@ body {
     max-width: 860px;
     min-height: 440px;
     margin: 0 auto;
+  }
+
+    .landing-preview-image-main {
+    left: -40px;
+    top: 18px;
+    width: 68%;
+  }
+
+  .landing-preview-image-secondary {
+    left: 46%;
+    top: 50px;
+    width: 56%;
   }
 
   .landing-preview-text {
@@ -764,14 +776,14 @@ body {
   }
 
   .landing-preview-image-main {
-    left: -12px;
+    left: 0px;
     top: 24px;
     width: 76%;
   }
 
   .landing-preview-image-secondary {
     left: 50%;
-    top: 78px;
+    top: 56px;
     width: 50%;
   }
 

@@ -7,6 +7,7 @@ import { LanguageProvider } from './context/LanguageContext'
 import './App.css'
 import './styles/auth.css'
 import './styles/landing.css'
+import './styles/dashboard.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
