@@ -29,7 +29,37 @@ export const previewAssetDetail = {
 
 export const riskTrendData = []
 
-
 export const recentAlerts = []
 
-export const technicalAnalysisPoints = []
+export const technicalAnalysisPoints = [
+  {
+    id: 'analysis-01',
+    segments: [
+      { text: 'Risk has incrished by ' },
+      { text: '%', highlight: true },
+      { text: ' on hari tanggal' },
+    ],
+  },
+  {
+    id: 'analysis-02',
+    segments: [
+      { text: 'Server 1 memiliki risk paling ' },
+      { text: 'tinggi', highlight: true },
+      { text: ' dengan skor ' },
+      { text: '85', highlight: true },
+    ],
+  },
+  {
+    id: 'analysis-03',
+    segments: [
+      { text: 'Kebanyakan asset adalah alert dari ' },
+      { text: 'brute force', highlight: false },
+    ],
+  },
+  {
+    id: 'analysis-04',
+    segments: [
+      { text: 'Direkomendasikan menghandle 22 asset' },
+    ],
+  },
+]

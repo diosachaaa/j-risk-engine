@@ -587,25 +587,31 @@
 }
 
 .technical-analysis-card {
-  padding-bottom: 28px;
+  padding: 24px 28px;
+  margin-bottom: 28px;
 }
 
 .technical-analysis-list {
-  padding: 0 20px 0 34px;
   margin: 0;
+  padding-top: 14px;
+  padding-left: 24px;
+  border-top: 1px solid #d9d9d9;
 }
 
-.technical-analysis-list li {
-  font-size: 18px;
-  line-height: 1.65;
+.technical-analysis-item {
+  margin-bottom: 12px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #111111;
+}
+
+.technical-analysis-highlight {
+  color: #e53935;
 }
 
 .danger-text {
   color: var(--red-main);
 }
-
-/* src/styles/dashboard.css */
-/* replace asset preview modal styles with this */
 
 .asset-preview-overlay {
   position: fixed;

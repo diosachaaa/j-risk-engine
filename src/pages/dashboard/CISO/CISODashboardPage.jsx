@@ -42,10 +42,15 @@ export default function CISODashboardPage() {
         </div>
 
         <TopRiskTable rows={assetRows} onOpenPreview={setSelectedRow} />
-        <TechnicalAnalysisCard points={technicalAnalysisPoints} />
+
+        <TechnicalAnalysisCard points={technicalAnalysisPoints ?? []} />
       </div>
 
-      <AssetPreviewModal open={Boolean(selectedRow)} onClose={() => setSelectedRow(null)} asset={previewData} />
+      <AssetPreviewModal
+        open={Boolean(selectedRow)}
+        onClose={() => setSelectedRow(null)}
+        asset={previewData}
+      />
     </div>
   )
 }
