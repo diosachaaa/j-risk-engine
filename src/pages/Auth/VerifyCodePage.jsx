@@ -4,12 +4,19 @@ import { authText } from '../../locales/authText'
 
 export default function VerifyCodePage() {
   const navigate = useNavigate()
-  const { language } = useLanguage()
-  const t = authText[language].verifyCode
+  const { language = 'id' } = useLanguage()
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    navigate('/')
+  const locale = authText[language] ?? authText.id
+  const t = locale.verifyCode
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    navigate('/dashboard/ciso')
+  }
+
+  const handleResendCode = (event) => {
+    event.preventDefault()
+    alert(t.resendMessage ?? 'Kode verifikasi berhasil dikirim ulang.')
   }
 
   return (
@@ -19,13 +26,14 @@ export default function VerifyCodePage() {
       <form className="auth-form" onSubmit={handleSubmit}>
         <div className="auth-field">
           <label className="auth-label" htmlFor="verificationCode">
-            {t.label}
+            {t.codeLabel}
           </label>
           <input
             id="verificationCode"
             type="text"
             className="auth-input"
-            placeholder={t.placeholder}
+            placeholder={t.codePlaceholder}
+            required
           />
         </div>
 
@@ -42,7 +50,11 @@ export default function VerifyCodePage() {
 
       <p className="auth-footer-text">
         {t.resendText}{' '}
-        <Link to="/auth/verify-code" className="auth-link auth-link-strong">
+        <Link
+          to="/auth/verify-code"
+          className="auth-link auth-link-strong"
+          onClick={handleResendCode}
+        >
           {t.resend}
         </Link>
       </p>

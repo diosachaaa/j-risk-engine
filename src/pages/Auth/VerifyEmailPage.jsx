@@ -1,10 +1,23 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { authText } from '../../locales/authText'
 
 export default function VerifyEmailPage() {
-  const { language } = useLanguage()
-  const t = authText[language].verifyEmail
+  const navigate = useNavigate()
+  const { language = 'id' } = useLanguage()
+
+  const locale = authText[language] ?? authText.id
+  const t = locale.verifyEmail
+
+  const handleContinue = (event) => {
+    event.preventDefault()
+    navigate('/auth/verify-code')
+  }
+
+  const handleResendEmail = (event) => {
+    event.preventDefault()
+    alert(t.resendMessage ?? 'Email verifikasi berhasil dikirim ulang.')
+  }
 
   return (
     <div className="auth-card">
@@ -16,13 +29,19 @@ export default function VerifyEmailPage() {
         {t.description}
       </p>
 
-      <button type="button" className="auth-button">
-        {t.submit}
-      </button>
+      <form onSubmit={handleContinue}>
+        <button type="submit" className="auth-button">
+          {t.submit}
+        </button>
+      </form>
 
       <p className="auth-footer-text">
         {t.resendText}{' '}
-        <Link to="/auth/verify-email" className="auth-link auth-link-strong">
+        <Link
+          to="/auth/verify-email"
+          className="auth-link auth-link-strong"
+          onClick={handleResendEmail}
+        >
           {t.resend}
         </Link>
       </p>

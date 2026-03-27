@@ -8,12 +8,17 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
 
-  const { language } = useLanguage()
-  const t = authText[language].login
+  const { language = 'id' } = useLanguage()
+  const locale = authText[language] ?? authText.id
+  const t = locale.login
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = (event) => {
+    event.preventDefault()
     navigate('/auth/verify-code')
+  }
+
+  const handleForgotPassword = (event) => {
+    event.preventDefault()
   }
 
   return (
@@ -23,19 +28,20 @@ export default function LoginPage() {
       <form className="auth-form" onSubmit={handleSubmit}>
         <div className="auth-field">
           <label className="auth-label" htmlFor="email">
-            {t.email}
+            {t.emailLabel}
           </label>
           <input
             id="email"
             type="email"
             className="auth-input"
             placeholder={t.emailPlaceholder}
+            required
           />
         </div>
 
         <div className="auth-field">
           <label className="auth-label" htmlFor="password">
-            {t.password}
+            {t.passwordLabel}
           </label>
 
           <div className="auth-input-wrap">
@@ -44,6 +50,7 @@ export default function LoginPage() {
               type={showPassword ? 'text' : 'password'}
               className="auth-input"
               placeholder={t.passwordPlaceholder}
+              required
             />
             <button
               type="button"
@@ -66,9 +73,9 @@ export default function LoginPage() {
             <span>{t.rememberMe}</span>
           </label>
 
-          <Link to="/auth/login" className="auth-link">
+          <a href="#forgot-password" className="auth-link" onClick={handleForgotPassword}>
             {t.forgotPassword}
-          </Link>
+          </a>
         </div>
 
         <button type="submit" className="auth-button">
@@ -79,7 +86,7 @@ export default function LoginPage() {
       <p className="auth-footer-text">
         {t.noAccount}{' '}
         <Link to="/auth/register" className="auth-link auth-link-strong">
-          {t.registerHere}
+          {t.registerLink}
         </Link>
       </p>
     </div>

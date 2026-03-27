@@ -8,11 +8,12 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  const { language } = useLanguage()
-  const t = authText[language].register
+  const { language = 'id' } = useLanguage()
+  const locale = authText[language] ?? authText.id
+  const t = locale.register
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = (event) => {
+    event.preventDefault()
     navigate('/auth/verify-email')
   }
 
@@ -22,44 +23,47 @@ export default function RegisterPage() {
 
       <form className="auth-form" onSubmit={handleSubmit}>
         <div className="auth-field">
-          <label className="auth-label" htmlFor="fullName">
-            {t.fullName}
+          <label className="auth-label" htmlFor="name">
+            {t.nameLabel}
           </label>
           <input
-            id="fullName"
+            id="name"
             type="text"
             className="auth-input"
-            placeholder={t.fullNamePlaceholder}
+            placeholder={t.namePlaceholder}
+            required
           />
         </div>
 
         <div className="auth-field">
           <label className="auth-label" htmlFor="username">
-            {t.username}
+            {t.usernameLabel}
           </label>
           <input
             id="username"
             type="text"
             className="auth-input"
             placeholder={t.usernamePlaceholder}
+            required
           />
         </div>
 
         <div className="auth-field">
           <label className="auth-label" htmlFor="email">
-            {t.email}
+            {t.emailLabel}
           </label>
           <input
             id="email"
             type="email"
             className="auth-input"
             placeholder={t.emailPlaceholder}
+            required
           />
         </div>
 
         <div className="auth-field">
           <label className="auth-label" htmlFor="password">
-            {t.password}
+            {t.passwordLabel}
           </label>
 
           <div className="auth-input-wrap">
@@ -68,6 +72,7 @@ export default function RegisterPage() {
               type={showPassword ? 'text' : 'password'}
               className="auth-input"
               placeholder={t.passwordPlaceholder}
+              required
             />
             <button
               type="button"
@@ -81,7 +86,7 @@ export default function RegisterPage() {
 
         <div className="auth-field">
           <label className="auth-label" htmlFor="confirmPassword">
-            {t.confirmPassword}
+            {t.confirmPasswordLabel}
           </label>
 
           <div className="auth-input-wrap">
@@ -90,6 +95,7 @@ export default function RegisterPage() {
               type={showConfirmPassword ? 'text' : 'password'}
               className="auth-input"
               placeholder={t.confirmPasswordPlaceholder}
+              required
             />
             <button
               type="button"
@@ -107,9 +113,9 @@ export default function RegisterPage() {
       </form>
 
       <p className="auth-footer-text">
-        {t.alreadyHaveAccount}{' '}
+        {t.haveAccount}{' '}
         <Link to="/auth/login" className="auth-link auth-link-strong">
-          {t.login}
+          {t.loginLink}
         </Link>
       </p>
     </div>

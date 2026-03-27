@@ -1,12 +1,12 @@
 import logoBankJatim from '../../assets/images/logo-bankjatim.png'
 import { useLanguage } from '../../context/LanguageContext'
 
-export default function AuthTopbar() {
+export default function AppTopbar() {
   const { language, setLanguage } = useLanguage()
 
   return (
-    <header className="auth-topbar">
-      <div className="auth-topbar-left">
+    <header className="topbar">
+      <div className="topbar-left">
         <button
           type="button"
           className={`lang ${language === 'id' ? 'active' : ''}`}
@@ -26,8 +26,8 @@ export default function AuthTopbar() {
         </button>
       </div>
 
-      <div className="auth-topbar-right">
-        <img src={logoBankJatim} alt="Bank Jatim" className="auth-logo" />
+      <div className="topbar-right">
+        <img src={logoBankJatim} alt="Bank Jatim" className="logo" />
       </div>
     </header>
   )

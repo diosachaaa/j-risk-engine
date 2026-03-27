@@ -1,25 +1,28 @@
 import { Outlet, useLocation } from 'react-router-dom'
-import AuthTopbar from '../../components/auth/AuthTopbar'
 import DashboardTopbar from '../../components/dashboard/DashboardTopbar'
 import DashboardFooter from '../../components/dashboard/DashboardFooter'
-
-const titles = {
-  '/dashboard/ciso': 'CISO Dashboard',
-  '/dashboard/management': 'Management Dashboard',
-}
+import { getRouteMeta } from '../../routes/routeMeta'
+import dashboardText from '../../locales/dashboardText'
+import { useLanguage } from '../../context/LanguageContext'
 
 export default function DashboardLayout() {
   const location = useLocation()
+  const { language = 'id' } = useLanguage()
+  const t = dashboardText[language] ?? dashboardText.id
 
-  const title = location.pathname.startsWith('/dashboard/ciso/assets/')
-    ? 'CISO Dashboard / Detail Asset'
-    : (titles[location.pathname] ?? 'Dashboard')
+  const meta = getRouteMeta(location.pathname)
+
+  const titleMap = {
+    ciso: t.titles.ciso,
+    management: t.titles.management,
+    assetDetail: t.titles.assetDetail,
+  }
+
+  const pageTitle = titleMap[meta?.titleKey] ?? t.titles.ciso
 
   return (
-    <div className="dashboard-shell" id="dashboard-top">
-      <AuthTopbar />
-
-      <DashboardTopbar title={title} />
+    <div className="dashboard-layout">
+      <DashboardTopbar title={pageTitle} />
 
       <main className="dashboard-main">
         <Outlet />

@@ -23,48 +23,6 @@ body {
   background: #d0121a;
 }
 
-.auth-topbar {
-  height: 72px;
-  background: #f3f3f3;
-  border-bottom: 1px solid #cfcfcf;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 40px;
-}
-
-.auth-topbar-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.auth-topbar .lang {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 14px;
-  letter-spacing: 1px;
-  color: #8d8d8d;
-  cursor: pointer;
-}
-
-.auth-topbar .lang.active {
-  color: #d0121a;
-  font-weight: 600;
-}
-
-.auth-topbar .divider {
-  color: #999;
-}
-
-.auth-logo {
-  height: 32px;
-  width: auto;
-  display: block;
-  object-fit: contain;
-}
-
 /* =========================
    AUTH BACKGROUND
 ========================= */
