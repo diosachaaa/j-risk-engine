@@ -1,4 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom'
+import AppTopbar from '../../components/common/AppTopbar'
 import DashboardTopbar from '../../components/dashboard/DashboardTopbar'
 import DashboardFooter from '../../components/dashboard/DashboardFooter'
 import { getRouteMeta } from '../../routes/routeMeta'
@@ -22,6 +23,7 @@ export default function DashboardLayout() {
 
   return (
     <div className="dashboard-layout">
+      <AppTopbar />
       <DashboardTopbar title={pageTitle} />
 
       <main className="dashboard-main">
