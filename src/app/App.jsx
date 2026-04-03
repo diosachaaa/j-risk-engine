@@ -1,0 +1,33 @@
+import { Routes, Route } from 'react-router-dom'
+
+import LandingPage from '../features/landing/pages/LandingPage'
+import AuthLayout from '../features/auth/components/AuthLayout'
+import LoginPage from '../features/auth/pages/LoginPage'
+import RegisterPage from '../features/auth/pages/RegisterPage'
+import VerifyCodePage from '../features/auth/pages/VerifyCodePage'
+import VerifyEmailPage from '../features/auth/pages/VerifyEmailPage'
+import DashboardLayout from '../features/dashboard/shared/components/DashboardLayout'
+import CISODashboardPage from '../features/dashboard/ciso/pages/CISODashboardPage'
+import AssetDetailPage from '../features/asset-detail/pages/AssetDetailPage'
+import ManagementDashboardPage from '../features/dashboard/management/pages/ManagementDashboardPage'
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+
+      <Route path="/auth" element={<AuthLayout />}>
+        <Route path="login" element={<LoginPage />} />
+        <Route path="register" element={<RegisterPage />} />
+        <Route path="verify-code" element={<VerifyCodePage />} />
+        <Route path="verify-email" element={<VerifyEmailPage />} />
+      </Route>
+
+      <Route path="/dashboard" element={<DashboardLayout />}>
+        <Route path="ciso" element={<CISODashboardPage />} />
+        <Route path="ciso/assets/:assetId" element={<AssetDetailPage />} />
+        <Route path="management" element={<ManagementDashboardPage />} />
+      </Route>
+    </Routes>
+  )
+}
