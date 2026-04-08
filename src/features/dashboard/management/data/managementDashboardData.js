@@ -1,0 +1,82 @@
+export const managementAssetSummary = [
+  {
+    id: 'asset-01',
+    name: 'API Gateway',
+    type: 'Application',
+    score: 82,
+    level: 'high',
+  },
+  {
+    id: 'asset-02',
+    name: 'Core DB Server',
+    type: 'Server',
+    score: 76,
+    level: 'high',
+  },
+  {
+    id: 'asset-03',
+    name: 'Mail Gateway',
+    type: 'Server',
+    score: 64,
+    level: 'medium',
+  },
+  {
+    id: 'asset-04',
+    name: 'Finance Workstation',
+    type: 'Endpoint',
+    score: 58,
+    level: 'medium',
+  },
+  {
+    id: 'asset-05',
+    name: 'Internet Banking Web',
+    type: 'Application',
+    score: 53,
+    level: 'medium',
+  },
+  {
+    id: 'asset-06',
+    name: 'HR Workstation',
+    type: 'Endpoint',
+    score: 34,
+    level: 'low',
+  },
+  {
+    id: 'asset-07',
+    name: 'Monitoring Node',
+    type: 'Server',
+    score: 29,
+    level: 'low',
+  },
+  {
+    id: 'asset-08',
+    name: 'File Archive',
+    type: 'Storage',
+    score: 22,
+    level: 'low',
+  },
+  {
+    id: 'asset-09',
+    name: 'Branch VPN',
+    type: 'Network',
+    score: 18,
+    level: 'low',
+  },
+  {
+    id: 'asset-10',
+    name: 'Backup Console',
+    type: 'Application',
+    score: 12,
+    level: 'low',
+  },
+]
+
+export const managementRiskTrend = [
+  { label: 'S', value: 41 },
+  { label: 'S', value: 48 },
+  { label: 'M', value: 38 },
+  { label: 'T', value: 26 },
+  { label: 'W', value: 35 },
+  { label: 'T', value: 56 },
+  { label: 'F', value: 42 },
+]

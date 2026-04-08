@@ -846,6 +846,191 @@
   text-decoration: none;
 }
 
+/* =========================================================
+   MANAGEMENT DASHBOARD
+   Tambahan baru, blok existing di atas dipertahankan
+========================================================= */
+
+.dashboard-management-page .dashboard-content {
+  gap: 22px;
+}
+
+.dashboard-management-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.95fr) minmax(420px, 1.45fr);
+  gap: 22px;
+}
+
+.management-chart-card {
+  min-height: 100%;
+}
+
+.management-card-header-centered {
+  text-align: center;
+}
+
+.management-card-header-centered h2 {
+  font-size: 18px;
+}
+
+.management-pie-card {
+  padding: 24px 24px 22px;
+}
+
+.management-pie-wrap {
+  display: grid;
+  place-items: center;
+  padding: 8px 0 20px;
+}
+
+.management-pie-shell {
+  position: relative;
+  width: min(260px, 100%);
+  aspect-ratio: 1;
+}
+
+.management-pie {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.management-pie-percentage {
+  position: absolute;
+  font-size: 18px;
+  line-height: 1;
+  color: #1f1f1f;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+
+.management-legend {
+  width: min(240px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 14px;
+}
+
+.management-legend-row,
+.management-legend-label {
+  display: flex;
+  align-items: center;
+}
+
+.management-legend-row {
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 16px;
+}
+
+.management-legend-label {
+  gap: 14px;
+}
+
+.management-legend-swatch {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.management-legend-swatch.green {
+  background: #cfe2d0;
+}
+
+.management-legend-swatch.yellow {
+  background: #f1d9aa;
+}
+
+.management-legend-swatch.red {
+  background: #eda1a5;
+}
+
+.management-line-card {
+  padding: 24px 24px 22px;
+}
+
+.management-line-chart {
+  position: relative;
+  min-height: 380px;
+  padding: 16px 18px 0 50px;
+}
+
+.management-line-grid {
+  position: absolute;
+  inset: 16px 18px 44px 50px;
+  display: grid;
+  grid-template-rows: repeat(12, 1fr);
+  border-left: 2px solid #181818;
+  border-bottom: 2px solid #181818;
+}
+
+.management-line-grid-row {
+  position: relative;
+  border-top: 1px solid #d4d4d4;
+}
+
+.management-line-grid-row span {
+  position: absolute;
+  top: -10px;
+  left: -32px;
+  font-size: 14px;
+  color: #2d2d2d;
+}
+
+.management-line-svg {
+  position: absolute;
+  inset: 16px 18px 44px 50px;
+  width: calc(100% - 68px);
+  height: calc(100% - 60px);
+  overflow: visible;
+}
+
+.management-line-path {
+  fill: none;
+  stroke: #ea2d32;
+  stroke-width: 2;
+}
+
+.management-line-dot {
+  fill: #ea2d32;
+}
+
+.management-line-labels {
+  position: absolute;
+  left: 50px;
+  right: 18px;
+  bottom: 10px;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.management-line-labels span {
+  text-align: center;
+  font-size: 16px;
+}
+
+.management-insight-card {
+  padding: 18px 24px 20px;
+}
+
+.management-insight-list {
+  margin: 0;
+  padding: 14px 0 0 22px;
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid #dddddd;
+}
+
+.management-insight-item {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
 @media (max-width: 1280px) {
   .dashboard-topbar-inner,
   .width-constrained,
@@ -865,6 +1050,10 @@
 
   .dashboard-two-column-grid {
     grid-template-columns: minmax(280px, 0.9fr) minmax(360px, 1.1fr);
+  }
+
+  .dashboard-management-grid {
+    grid-template-columns: minmax(280px, 0.95fr) minmax(360px, 1.2fr);
   }
 
   .top-risk-toolbar {
@@ -941,7 +1130,8 @@
     grid-auto-columns: minmax(64px, 1fr);
   }
 
-  .dashboard-two-column-grid {
+  .dashboard-two-column-grid,
+  .dashboard-management-grid {
     grid-template-columns: 1fr;
   }
 
@@ -993,6 +1183,10 @@
   .technical-analysis-card {
     padding: 20px;
     margin-bottom: 20px;
+  }
+
+  .management-line-chart {
+    min-height: 340px;
   }
 }
 
@@ -1285,5 +1479,54 @@
 
   .dashboard-footer-links {
     flex-wrap: wrap;
+  }
+
+  .management-pie-card,
+  .management-line-card,
+  .management-insight-card {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .management-card-header-centered h2 {
+    font-size: 17px;
+  }
+
+  .management-pie-shell {
+    width: min(220px, 100%);
+  }
+
+  .management-pie-percentage,
+  .management-legend-row,
+  .management-line-labels span,
+  .management-insight-item {
+    font-size: 14px;
+  }
+
+  .management-line-chart {
+    min-height: 280px;
+    padding-left: 38px;
+    padding-right: 8px;
+  }
+
+  .management-line-grid,
+  .management-line-svg {
+    left: 38px;
+    right: 8px;
+  }
+
+  .management-line-grid-row span {
+    left: -24px;
+    font-size: 12px;
+  }
+
+  .management-line-labels {
+    left: 38px;
+    right: 8px;
+    bottom: 12px;
+  }
+
+  .management-insight-list {
+    padding-left: 18px;
   }
 }

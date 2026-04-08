@@ -80,7 +80,30 @@ const dashboardText = {
     },
 
     managementPage: {
-      placeholder: 'Halaman dashboard manajemen masih dalam pengembangan.',
+      distributionTitle: 'PIE CHART',
+      trendTitle: 'CHART',
+      trendAriaLabel: 'Grafik tren risiko mingguan',
+      insightTitle: 'INSIGHTS & RECOMMENDATION',
+      labels: {
+        low: 'Low',
+        medium: 'Medium',
+        high: 'High',
+      },
+      insights: {
+        riskTrendStart: 'Rata-rata indeks risiko mingguan berada di ',
+        riskTrendMiddle: ' dengan perubahan ',
+        riskTrendEnd: (isIncrease) =>
+          isIncrease ? ' dibanding awal minggu.' : ' dibanding awal minggu.',
+        topAssetStart: 'Aset dengan risiko tertinggi saat ini adalah ',
+        topAssetMiddle: ' dengan skor ',
+        topAssetEnd: '.',
+        peakDayStart: 'Puncak tren risiko terjadi pada label ',
+        peakDayMiddle: ' dengan nilai ',
+        peakDayEnd: '.',
+        priorityStart: 'Direkomendasikan memprioritaskan ',
+        priorityMiddle: ' aset tinggi dan ',
+        priorityEnd: ' aset sedang untuk mitigasi tahap awal.',
+      },
     },
   },
 
@@ -165,7 +188,30 @@ const dashboardText = {
     },
 
     managementPage: {
-      placeholder: 'Management dashboard page is still under development.',
+      distributionTitle: 'PIE CHART',
+      trendTitle: 'CHART',
+      trendAriaLabel: 'Weekly risk trend chart',
+      insightTitle: 'INSIGHTS & RECOMMENDATION',
+      labels: {
+        low: 'Low',
+        medium: 'Medium',
+        high: 'High',
+      },
+      insights: {
+        riskTrendStart: 'The weekly risk index average is ',
+        riskTrendMiddle: ' with a ',
+        riskTrendEnd: (isIncrease) =>
+          isIncrease ? ' change from the start of the week.' : ' change from the start of the week.',
+        topAssetStart: 'The highest-risk asset currently is ',
+        topAssetMiddle: ' with a score of ',
+        topAssetEnd: '.',
+        peakDayStart: 'The peak risk trend occurs on label ',
+        peakDayMiddle: ' with a value of ',
+        peakDayEnd: '.',
+        priorityStart: 'It is recommended to prioritize ',
+        priorityMiddle: ' high-risk assets and ',
+        priorityEnd: ' medium-risk assets for the first mitigation phase.',
+      },
     },
   },
 }
