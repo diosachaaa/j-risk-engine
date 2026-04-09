@@ -21,37 +21,37 @@ export const assetDetails = [
         detail: 'Terjadi sesuatu',
       },
       {
-        date: 'Mon, 18 Maret 2026',
+        date: 'Tue, 19 Maret 2026',
         score: '85',
         status: 'High',
         detail: 'Terjadi sesuatu',
       },
       {
-        date: 'Mon, 18 Maret 2026',
+        date: 'Wed, 20 Maret 2026',
         score: '85',
         status: 'High',
         detail: 'Terjadi sesuatu',
       },
       {
-        date: 'Mon, 18 Maret 2026',
+        date: 'Thu, 21 Maret 2026',
         score: '85',
         status: 'High',
         detail: 'Terjadi sesuatu',
       },
       {
-        date: 'Mon, 18 Maret 2026',
+        date: 'Fri, 22 Maret 2026',
         score: '85',
         status: 'High',
         detail: 'Terjadi sesuatu',
       },
       {
-        date: 'Mon, 18 Maret 2026',
+        date: 'Sat, 23 Maret 2026',
         score: '85',
         status: 'High',
         detail: 'Terjadi sesuatu',
       },
       {
-        date: 'Mon, 18 Maret 2026',
+        date: 'Sun, 24 Maret 2026',
         score: '85',
         status: 'High',
         detail: 'Terjadi sesuatu',
@@ -210,3 +210,5 @@ export const assetDetails = [
       'Asset-02 masih berada pada tingkat risiko yang dapat dikelola, namun tetap memerlukan mitigasi terarah agar tidak berkembang menjadi risiko tinggi.',
   },
 ]
+
+export default assetDetails

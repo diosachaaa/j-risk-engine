@@ -17,7 +17,7 @@ export default function TechnicalAnalysisCard({ points = [] }) {
             <li key={point.id ?? index} className="technical-analysis-item">
               {(point.segments ?? []).map((segment, segmentIndex) => (
                 <span
-                  key={segmentIndex}
+                  key={`${point.id ?? index}-${segmentIndex}`}
                   className={
                     segment.highlight ? 'technical-analysis-highlight' : ''
                   }

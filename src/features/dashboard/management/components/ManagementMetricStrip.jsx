@@ -1,7 +1,7 @@
 import dashboardText from '../../shared/dashboardText'
 import { useLanguage } from '../../../../shared/contexts/LanguageContext'
 
-export default function ManagementMetricStrip({ summary }) {
+export default function ManagementMetricStrip({ summary = {} }) {
   const { language = 'id' } = useLanguage()
   const t = dashboardText[language] ?? dashboardText.id
 

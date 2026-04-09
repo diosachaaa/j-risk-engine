@@ -9,61 +9,59 @@ const toneClassMap = {
   high: 'red',
 }
 
+const fallbackSegments = [
+  { level: 'low', value: 0, percentage: 0, color: '#cfe2d0' },
+  { level: 'medium', value: 0, percentage: 0, color: '#f1d9aa' },
+  { level: 'high', value: 0, percentage: 0, color: '#eda1a5' },
+]
+
+function buildGradient(segments) {
+  const hasValue = segments.some((segment) => (segment.percentage ?? 0) > 0)
+
+  if (!hasValue) {
+    return 'conic-gradient(#f2f2f2 0% 100%)'
+  }
+
+  return `conic-gradient(${segments
+    .map((segment, index) => {
+      const previousTotal = segments
+        .slice(0, index)
+        .reduce((total, item) => total + (item.percentage ?? 0), 0)
+
+      const nextTotal = previousTotal + (segment.percentage ?? 0)
+
+      return `${segment.color} ${previousTotal}% ${nextTotal}%`
+    })
+    .join(', ')})`
+}
+
 export default function ManagementDistributionCard({ segments = [] }) {
   const { language = 'id' } = useLanguage()
   const t = dashboardText[language] ?? dashboardText.id
 
-  const safeSegments = Array.isArray(segments) ? segments : []
+  const safeSegments = Array.isArray(segments) && segments.length > 0
+    ? segments.map((segment) => ({
+        level: segment.level,
+        value: segment.value ?? 0,
+        percentage: segment.percentage ?? 0,
+        color:
+          segment.color ??
+          fallbackSegments.find((item) => item.level === segment.level)?.color ??
+          '#f2f2f2',
+      }))
+    : fallbackSegments
 
-  const totalPercentage = safeSegments.reduce(
-    (total, item) => total + (item.percentage || 0),
-    0
-  )
-
-  const normalizedSegments =
-    totalPercentage > 0
-      ? safeSegments
-      : [
-          {
-            level: 'low',
-            percentage: 0,
-            color: '#cfe2d0',
-          },
-          {
-            level: 'medium',
-            percentage: 0,
-            color: '#f1d9aa',
-          },
-          {
-            level: 'high',
-            percentage: 0,
-            color: '#eda1a5',
-          },
-        ]
-
-  const gradient =
-    totalPercentage > 0
-      ? `conic-gradient(${normalizedSegments
-          .map((segment, index) => {
-            const previousTotal = normalizedSegments
-              .slice(0, index)
-              .reduce((total, item) => total + item.percentage, 0)
-            const nextTotal = previousTotal + segment.percentage
-
-            return `${segment.color} ${previousTotal}% ${nextTotal}%`
-          })
-          .join(', ')})`
-      : 'conic-gradient(#f2f2f2 0% 100%)'
+  const gradient = useMemo(() => buildGradient(safeSegments), [safeSegments])
 
   const chartSegments = useMemo(() => {
     const LABEL_RADIUS = 58
 
-    return normalizedSegments.map((segment, index) => {
-      const previousTotal = normalizedSegments
+    return safeSegments.map((segment, index) => {
+      const previousTotal = safeSegments
         .slice(0, index)
-        .reduce((total, item) => total + item.percentage, 0)
+        .reduce((total, item) => total + (item.percentage ?? 0), 0)
 
-      const middlePercent = previousTotal + segment.percentage / 2
+      const middlePercent = previousTotal + (segment.percentage ?? 0) / 2
       const angle = (middlePercent / 100) * 360 - 90
       const radian = (angle * Math.PI) / 180
 
@@ -78,7 +76,14 @@ export default function ManagementDistributionCard({ segments = [] }) {
         },
       }
     })
-  }, [normalizedSegments])
+  }, [safeSegments])
+
+  const hasDistribution = safeSegments.some((segment) => segment.percentage > 0)
+
+  const emptyText =
+    language === 'en'
+      ? 'Distribution data is not available yet.'
+      : 'Data distribusi belum tersedia.'
 
   return (
     <section className="dashboard-panel dashboard-card management-chart-card management-pie-card">
@@ -104,8 +109,12 @@ export default function ManagementDistributionCard({ segments = [] }) {
         </div>
       </div>
 
+      {!hasDistribution ? (
+        <p className="dashboard-card-empty">{emptyText}</p>
+      ) : null}
+
       <div className="management-legend">
-        {normalizedSegments.map((segment) => (
+        {safeSegments.map((segment) => (
           <div key={segment.level} className="management-legend-row">
             <div className="management-legend-label">
               <span

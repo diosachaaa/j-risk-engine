@@ -4,6 +4,10 @@ import { Search, ChevronDown } from 'lucide-react'
 import dashboardText from '../../shared/dashboardText'
 import { useLanguage } from '../../../../shared/contexts/LanguageContext'
 
+function normalizeText(value) {
+  return String(value ?? '').toLowerCase()
+}
+
 export default function TopRiskTable({ rows = [], onOpenPreview }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [riskFilter, setRiskFilter] = useState('')
@@ -26,11 +30,11 @@ export default function TopRiskTable({ rows = [], onOpenPreview }) {
     return rows.filter((row) => {
       const matchesSearch =
         keyword === '' ||
-        row.name.toLowerCase().includes(keyword) ||
-        row.type.toLowerCase().includes(keyword) ||
-        String(row.score).toLowerCase().includes(keyword) ||
-        row.status.toLowerCase().includes(keyword) ||
-        row.updatedAt.toLowerCase().includes(keyword)
+        normalizeText(row.name).includes(keyword) ||
+        normalizeText(row.type).includes(keyword) ||
+        normalizeText(row.score).includes(keyword) ||
+        normalizeText(row.status).includes(keyword) ||
+        normalizeText(row.updatedAt).includes(keyword)
 
       const matchesRisk = riskFilter === '' || row.status === riskFilter
       const matchesType = typeFilter === '' || row.type === typeFilter
@@ -38,6 +42,12 @@ export default function TopRiskTable({ rows = [], onOpenPreview }) {
       return matchesSearch && matchesRisk && matchesType
     })
   }, [rows, searchQuery, riskFilter, typeFilter])
+
+  function handleOpenPreview(row) {
+    if (typeof onOpenPreview === 'function') {
+      onOpenPreview(row)
+    }
+  }
 
   return (
     <section className="dashboard-panel top-risk-panel">
@@ -102,14 +112,14 @@ export default function TopRiskTable({ rows = [], onOpenPreview }) {
               filteredRows.map((row) => (
                 <tr
                   key={row.id}
-                  className={`status-${row.status.toLowerCase()}`}
-                  onClick={() => onOpenPreview(row)}
+                  className={`status-${row.level ?? normalizeText(row.status)}`}
+                  onClick={() => handleOpenPreview(row)}
                 >
-                  <td>{row.name}</td>
-                  <td>{row.type}</td>
-                  <td>{row.score}</td>
-                  <td>{row.status}</td>
-                  <td>{row.updatedAt}</td>
+                  <td>{row.name ?? '-'}</td>
+                  <td>{row.type ?? '-'}</td>
+                  <td>{row.score ?? 0}</td>
+                  <td>{row.status ?? '-'}</td>
+                  <td>{row.updatedAt ?? '-'}</td>
                 </tr>
               ))
             ) : (

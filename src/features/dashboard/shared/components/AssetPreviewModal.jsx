@@ -4,11 +4,38 @@ import { X } from 'lucide-react'
 import dashboardText from '../dashboardText'
 import { useLanguage } from '../../../../shared/contexts/LanguageContext'
 
-export default function AssetPreviewModal({ asset, onClose }) {
+function renderList(items = [], emptyText = '-') {
+  if (!Array.isArray(items) || items.length === 0) {
+    return <li>{emptyText}</li>
+  }
+
+  return items.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)
+}
+
+export default function AssetPreviewModal({
+  open = false,
+  asset = null,
+  onClose,
+}) {
   const { language = 'id' } = useLanguage()
   const t = dashboardText[language] ?? dashboardText.id
 
-  if (!asset) return null
+  if (!open || !asset) return null
+
+  const emptyVulnerabilities =
+    language === 'en'
+      ? 'No vulnerability details available yet'
+      : 'Belum ada detail kerentanan yang tersedia'
+
+  const emptyAlerts =
+    language === 'en'
+      ? 'No alert details available yet'
+      : 'Belum ada detail alert yang tersedia'
+
+  const emptyActivities =
+    language === 'en'
+      ? 'No activity log available yet'
+      : 'Belum ada activity log yang tersedia'
 
   return (
     <div className="asset-preview-overlay" onClick={onClose}>
@@ -29,54 +56,42 @@ export default function AssetPreviewModal({ asset, onClose }) {
         </div>
 
         <div className="asset-preview-score-box">
-          <strong>{asset.score}</strong>
-          <span>{asset.riskLabel}</span>
+          <strong>{asset.score ?? 0}</strong>
+          <span>{asset.riskLabel ?? '-'}</span>
         </div>
 
         <div className="asset-preview-name-block">
           <span>{t.assetPreview.assetName}</span>
-          <h3>{asset.assetName}</h3>
+          <h3>{asset.assetName ?? '-'}</h3>
         </div>
 
         <div className="asset-preview-block">
           <div className="asset-preview-block-title">
             {t.assetPreview.vulnerabilities}
           </div>
-          <ul>
-            {(asset.vulnerabilities ?? []).map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+          <ul>{renderList(asset.vulnerabilities, emptyVulnerabilities)}</ul>
         </div>
 
         <div className="asset-preview-block danger">
           <div className="asset-preview-block-title">
             {t.assetPreview.securityAlert}
           </div>
-          <ul>
-            {(asset.securityAlerts ?? []).map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+          <ul>{renderList(asset.securityAlerts, emptyAlerts)}</ul>
         </div>
 
         <div className="asset-preview-block">
           <div className="asset-preview-block-title">
             {t.assetPreview.activityLog}
           </div>
-          <ul>
-            {(asset.activities ?? []).map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+          <ul>{renderList(asset.activities, emptyActivities)}</ul>
         </div>
 
         <p className="asset-preview-updated">
-          {t.assetPreview.lastUpdated} {asset.lastUpdated}
+          {t.assetPreview.lastUpdated} {asset.lastUpdated ?? '-'}
         </p>
 
         <Link
-          to={`/dashboard/ciso/assets/${asset.id ?? 'asset-01'}`}
+          to={`/dashboard/ciso/assets/${asset.id ?? asset.assetId ?? 'asset-01'}`}
           className="asset-preview-link-button"
           onClick={onClose}
         >

@@ -1,72 +1,98 @@
-import { assetDetails } from './assetDetailMock'
+import assetDetailMock from './assetDetailMock'
+import { buildAssetDetailViewModel } from './assetDetailMappers'
 
-export function getAssetDetailById(assetId) {
-  if (!assetId) return assetDetails[0]
+function normalizeCollection(source) {
+  if (Array.isArray(source)) return source
+
+  if (source && Array.isArray(source.items)) return source.items
+  if (source && Array.isArray(source.data)) return source.data
+  if (source && Array.isArray(source.assets)) return source.assets
+
+  return []
+}
+
+function normalizeAssetId(value, fallback = 'asset-01') {
+  if (value === undefined || value === null) return fallback
+
+  const normalized = String(value).trim()
+
+  return normalized || fallback
+}
+
+function getRawAssetId(item) {
+  if (!item || typeof item !== 'object') return ''
 
   return (
-    assetDetails.find((item) => item.id === assetId) ??
-    assetDetails.find(
-      (item) => item.id.toLowerCase() === String(assetId).toLowerCase(),
-    ) ??
-    null
+    item.asset_id ||
+    item.assetId ||
+    item.id ||
+    item.assetName ||
+    item.asset_name ||
+    item.hostname ||
+    ''
   )
 }
 
-export function getFallbackAssetDetail(assetId = 'asset-01') {
-  return {
-    id: assetId,
-    reportTitle: assetId,
-    assetName: assetId,
-    assetType: 'Server',
-    status: 'Active',
-    ipAddress: '192.168.1.1',
-    updatedAt: '10 March 2026, 14:32',
-    currentRiskScore: 86,
-    riskLevel: 'High',
-    riskSummaryDescription:
-      'Aset ini memiliki tingkat risiko tinggi dan memerlukan perhatian segera untuk mencegah potensi ancaman keamanan yang lebih serius.',
-    riskHistory: Array.from({ length: 7 }, () => ({
-      date: 'Mon, 18 Maret 2026',
-      score: '85',
-      status: 'High',
-      detail: 'Terjadi sesuatu',
-    })),
-    riskHistoryAnalysis:
-      'Terjadi peningkatan signifikan pada hari Kamis yang menunjukkan adanya potensi ancaman atau aktivitas mencurigakan pada sistem.',
-    vulnerabilities: ['CVE-2023-xxxx', 'Open port 22'],
-    vulnerabilityDescription:
-      'Kerentanan ini dapat dimanfaatkan oleh pihak tidak bertanggung jawab untuk mengakses sistem secara ilegal.',
-    securityAlerts: [
-      {
-        severity: 'High',
-        description: 'Alert Description',
-        time: '5 min ago',
-      },
-      {
-        severity: 'Medium',
-        description: 'Alert Description',
-        time: '10 min ago',
-      },
-      {
-        severity: 'Low',
-        description: 'Alert Description',
-        time: '30 min ago',
-      },
-    ],
-    alertDescription:
-      'Terdapat beberapa aktivitas mencurigakan yang terdeteksi, terutama percobaan brute force yang berulang.',
-    technicalAnalysis: [
-      'Risiko meningkat sebesar 12% dalam 7 hari terakhir',
-      'Aktivitas brute force terdeteksi secara berulang',
-      'Aset ini termasuk dalam kategori prioritas tinggi',
-      'Terdapat celah keamanan pada konfigurasi SSH',
-    ],
-    recommendations: [
-      'Segera lakukan patch terhadap vulnerability yang terdeteksi',
-      'Tutup atau batasi akses pada port 22',
-      'Aktifkan proteksi tambahan terhadap brute force attack',
-      'Lakukan monitoring intensif selama 24–48 jam ke depan',
-    ],
-    conclusion: `${assetId} berada dalam kondisi risiko tinggi dan membutuhkan tindakan segera untuk mengurangi potensi ancaman keamanan. Implementasi langkah mitigasi yang direkomendasikan diharapkan dapat menurunkan tingkat risiko secara signifikan.`,
+const mockItems = normalizeCollection(assetDetailMock)
+
+export function getAssetDetailById(assetId) {
+  const normalizedAssetId = normalizeAssetId(assetId)
+
+  const matchedItem = mockItems.find((item) => {
+    return normalizeAssetId(getRawAssetId(item), '') === normalizedAssetId
+  })
+
+  if (!matchedItem) {
+    return null
   }
+
+  return buildAssetDetailViewModel({
+    asset: matchedItem,
+    score: matchedItem,
+    trend: matchedItem.riskHistory ?? matchedItem.trend ?? [],
+    fallbackId: normalizedAssetId,
+  })
 }
+
+export function getFallbackAssetDetail(assetId) {
+  const normalizedAssetId = normalizeAssetId(assetId)
+
+  const existingMockDetail = getAssetDetailById(normalizedAssetId)
+
+  if (existingMockDetail) {
+    return existingMockDetail
+  }
+
+  return buildAssetDetailViewModel({
+    asset: {
+      asset_id: normalizedAssetId,
+      asset_name: normalizedAssetId,
+      asset_type: 'Server',
+      status: 'Active',
+      ip_address: '-',
+      updated_at: new Date().toISOString(),
+      vulnerabilities: [],
+      security_alerts: [],
+    },
+    score: {
+      asset_id: normalizedAssetId,
+      risk_score: 0,
+      risk_level: 'low',
+      risk_components: {
+        threat: 0,
+        vulnerability: 0,
+        criticality: 0,
+      },
+      timestamp: new Date().toISOString(),
+    },
+    trend: [],
+    fallbackId: normalizedAssetId,
+  })
+}
+
+const assetDetailData = {
+  getAssetDetailById,
+  getFallbackAssetDetail,
+}
+
+export default assetDetailData

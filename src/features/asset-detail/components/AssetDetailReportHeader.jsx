@@ -1,7 +1,28 @@
 import { ArrowLeft, Download } from 'lucide-react'
 
+import { useLanguage } from '../../../shared/contexts/LanguageContext'
+
+const TEXT = {
+  id: {
+    back: 'Kembali',
+    downloadLabel: 'Unduh PDF',
+    detailPrefix: 'Detail',
+    riskSuffix: 'RISK',
+  },
+  en: {
+    back: 'Back',
+    downloadLabel: 'Download PDF',
+    detailPrefix: 'Detail',
+    riskSuffix: 'RISK',
+  },
+}
+
+function normalizeLanguage(language = 'id') {
+  return language === 'en' ? 'en' : 'id'
+}
+
 function getRiskClass(riskLevel) {
-  const value = riskLevel?.toLowerCase()
+  const value = String(riskLevel ?? '').toLowerCase()
 
   if (value === 'high') return 'high'
   if (value === 'medium') return 'medium'
@@ -9,12 +30,25 @@ function getRiskClass(riskLevel) {
   return 'default'
 }
 
+function normalizeAsset(asset = {}) {
+  return {
+    reportTitle: asset?.reportTitle || asset?.assetName || asset?.name || 'Asset',
+    currentRiskScore: asset?.currentRiskScore ?? 0,
+    riskLevel: asset?.riskLevel || 'Low',
+  }
+}
+
 export default function AssetDetailReportHeader({
   asset,
   onBack,
   onDownload,
 }) {
-  const riskClass = getRiskClass(asset.riskLevel)
+  const { language = 'id' } = useLanguage()
+  const locale = normalizeLanguage(language)
+  const t = TEXT[locale]
+
+  const safeAsset = normalizeAsset(asset)
+  const riskClass = getRiskClass(safeAsset.riskLevel)
 
   return (
     <div className="asset-report-header">
@@ -27,15 +61,15 @@ export default function AssetDetailReportHeader({
           <span className="asset-report-back-icon">
             <ArrowLeft size={22} />
           </span>
-          <span>Kembali</span>
+          <span>{t.back}</span>
         </button>
 
         <button
           type="button"
           className="asset-report-download-button"
           onClick={onDownload}
-          aria-label="Unduh PDF"
-          title="Unduh PDF"
+          aria-label={t.downloadLabel}
+          title={t.downloadLabel}
         >
           <Download size={18} />
         </button>
@@ -43,15 +77,15 @@ export default function AssetDetailReportHeader({
 
       <div className="asset-report-title-block">
         <h1 className="asset-report-title">
-          Detail {asset.reportTitle || asset.name}
+          {t.detailPrefix} {safeAsset.reportTitle}
         </h1>
 
         <div className={`asset-report-risk-badge ${riskClass}`}>
           <div className="asset-report-risk-score">
-            {asset.currentRiskScore}
+            {safeAsset.currentRiskScore}
           </div>
           <div className="asset-report-risk-label">
-            {asset.riskLevel.toUpperCase()} RISK
+            {String(safeAsset.riskLevel).toUpperCase()} {t.riskSuffix}
           </div>
         </div>
       </div>
