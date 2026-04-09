@@ -57,7 +57,8 @@ const dashboardText = {
         assetName: 'Nama Aset',
         assetType: 'Tipe Aset',
         riskScore: 'Skor Risiko',
-        status: 'Status',
+        assetStatus: 'Status Aset',
+        status: 'Status Aset',
         lastUpdated: 'Update Terakhir',
       },
       empty: 'Data aset tidak ditemukan.',
@@ -93,7 +94,9 @@ const dashboardText = {
         riskTrendStart: 'Rata-rata indeks risiko mingguan berada di ',
         riskTrendMiddle: ' dengan perubahan ',
         riskTrendEnd: (isIncrease) =>
-          isIncrease ? ' dibanding awal minggu.' : ' dibanding awal minggu.',
+          isIncrease
+            ? ' dibanding awal minggu.'
+            : ' dibanding awal minggu.',
         topAssetStart: 'Aset dengan risiko tertinggi saat ini adalah ',
         topAssetMiddle: ' dengan skor ',
         topAssetEnd: '.',
@@ -165,7 +168,8 @@ const dashboardText = {
         assetName: 'Asset Name',
         assetType: 'Asset Type',
         riskScore: 'Risk Score',
-        status: 'Status',
+        assetStatus: 'Asset Status',
+        status: 'Asset Status',
         lastUpdated: 'Last Updated',
       },
       empty: 'No asset data found.',
@@ -201,7 +205,9 @@ const dashboardText = {
         riskTrendStart: 'The weekly risk index average is ',
         riskTrendMiddle: ' with a ',
         riskTrendEnd: (isIncrease) =>
-          isIncrease ? ' change from the start of the week.' : ' change from the start of the week.',
+          isIncrease
+            ? ' change from the start of the week.'
+            : ' change from the start of the week.',
         topAssetStart: 'The highest-risk asset currently is ',
         topAssetMiddle: ' with a score of ',
         topAssetEnd: '.',

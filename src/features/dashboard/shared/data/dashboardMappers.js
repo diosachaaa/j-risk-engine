@@ -26,6 +26,21 @@ const RISK_LABELS = {
   },
 }
 
+const ASSET_STATUS_LABELS = {
+  id: {
+    active: 'Aktif',
+    inactive: 'Tidak Aktif',
+    maintenance: 'Maintenance',
+    unknown: 'Tidak Diketahui',
+  },
+  en: {
+    active: 'Active',
+    inactive: 'Inactive',
+    maintenance: 'Maintenance',
+    unknown: 'Unknown',
+  },
+}
+
 const TYPE_FALLBACK = {
   id: 'Tipe Aset',
   en: 'Asset Type',
@@ -37,6 +52,10 @@ function normalizeLocale(locale = DEFAULT_LOCALE) {
 
 function isNonEmptyString(value) {
   return typeof value === 'string' && value.trim() !== ''
+}
+
+function hasValue(value) {
+  return value !== undefined && value !== null && value !== ''
 }
 
 function normalizeString(value, fallback = '') {
@@ -101,6 +120,56 @@ function toTitleCase(value, fallback = '-') {
     .replace(/\b\w/g, (character) => character.toUpperCase())
 }
 
+function normalizeAssetStatus(value) {
+  const normalized = normalizeString(value, 'unknown').toLowerCase()
+
+  if (
+    [
+      'active',
+      'up',
+      'online',
+      'healthy',
+      'running',
+      'enabled',
+      'ready',
+    ].includes(normalized)
+  ) {
+    return 'active'
+  }
+
+  if (
+    [
+      'inactive',
+      'down',
+      'offline',
+      'disabled',
+      'stopped',
+      'terminated',
+    ].includes(normalized)
+  ) {
+    return 'inactive'
+  }
+
+  if (['maintenance', 'maint', 'updating'].includes(normalized)) {
+    return 'maintenance'
+  }
+
+  return normalized || 'unknown'
+}
+
+function normalizeImpactScoreToRiskScore(value) {
+  const numericValue = toNumber(value, Number.NaN)
+
+  if (!Number.isFinite(numericValue)) {
+    return null
+  }
+
+  const normalizedValue =
+    numericValue >= 0 && numericValue <= 1 ? numericValue * 100 : numericValue
+
+  return clampRiskScore(normalizedValue)
+}
+
 export function formatDateTime(value, locale = DEFAULT_LOCALE) {
   if (!value) return '-'
 
@@ -110,16 +179,13 @@ export function formatDateTime(value, locale = DEFAULT_LOCALE) {
     return normalizeString(value, '-')
   }
 
-  return new Intl.DateTimeFormat(
-    locale === 'en' ? 'en-US' : 'id-ID',
-    {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    },
-  ).format(date)
+  return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)
 }
 
 export function buildAssetLookupKey(value) {
@@ -238,6 +304,16 @@ export function getRiskLabel(level, locale = DEFAULT_LOCALE) {
   return RISK_LABELS[normalizedLocale][normalizedLevel]
 }
 
+export function getAssetStatusLabel(status, locale = DEFAULT_LOCALE) {
+  const normalizedLocale = normalizeLocale(locale)
+  const normalizedStatus = normalizeAssetStatus(status)
+
+  return (
+    ASSET_STATUS_LABELS[normalizedLocale][normalizedStatus] ||
+    toTitleCase(normalizedStatus, ASSET_STATUS_LABELS[normalizedLocale].unknown)
+  )
+}
+
 export function mapRiskComponents(raw = {}) {
   const source =
     pickFirst(raw, ['risk_components', 'riskComponents', 'components'], null) ??
@@ -255,7 +331,11 @@ export function mapRiskComponents(raw = {}) {
       ),
     ),
     criticality: clampRiskScore(
-      pickFirst(source, ['criticality', 'criticality_score', 'criticalityScore'], 0),
+      pickFirst(
+        source,
+        ['criticality', 'criticality_score', 'criticalityScore'],
+        0,
+      ),
     ),
   }
 }
@@ -308,10 +388,29 @@ export function mapAsset(raw = {}, options = {}) {
   const type = normalizeString(
     pickFirst(
       raw,
-      ['asset_type', 'assetType', 'type', 'category', 'platform', 'os_name'],
+      [
+        'asset_type',
+        'assetType',
+        'type',
+        'category',
+        'platform',
+        'os_type',
+        'os_name',
+        'os',
+      ],
       TYPE_FALLBACK[locale],
     ),
     TYPE_FALLBACK[locale],
+  )
+
+  const normalizedAssetStatus = normalizeAssetStatus(
+    pickFirst(raw, ['status', 'state', 'asset_status'], 'unknown'),
+  )
+
+  const impactScoreRaw = pickFirst(
+    raw,
+    ['impact_score', 'impactScore', 'impact', 'weight'],
+    null,
   )
 
   const updatedAtRaw = pickFirst(
@@ -341,10 +440,10 @@ export function mapAsset(raw = {}, options = {}) {
       pickFirst(raw, ['ip_address', 'ipAddress', 'ip', 'agent_ip'], '-'),
       '-',
     ),
-    status: normalizeString(
-      pickFirst(raw, ['status', 'state', 'asset_status'], 'Active'),
-      'Active',
-    ),
+    status: normalizedAssetStatus,
+    statusLabel: getAssetStatusLabel(normalizedAssetStatus, locale),
+    impactScore: hasValue(impactScoreRaw) ? toNumber(impactScoreRaw, 0) : null,
+    impactScoreAsRiskScore: normalizeImpactScoreToRiskScore(impactScoreRaw),
     environment: normalizeString(
       pickFirst(raw, ['environment', 'env'], '-'),
       '-',
@@ -375,13 +474,22 @@ export function mapLatestScore(raw = {}, options = {}) {
     pickFirst(raw, ['asset_id', 'assetId', 'id', 'hostname'], ''),
   )
 
-  const score = clampRiskScore(
-    pickFirst(raw, ['risk_score', 'riskScore', 'score', 'value'], 0),
+  const rawScoreValue = pickFirst(
+    raw,
+    ['risk_score', 'riskScore', 'score', 'value'],
+    undefined,
   )
 
-  const level = getRiskLevel(
-    pickFirst(raw, ['risk_level', 'riskLevel', 'level', 'status'], score),
+  const hasScoreValue = hasValue(rawScoreValue)
+  const score = clampRiskScore(hasScoreValue ? rawScoreValue : 0)
+
+  const rawLevel = pickFirst(
+    raw,
+    ['risk_level', 'riskLevel', 'level', 'status'],
+    undefined,
   )
+
+  const level = getRiskLevel(hasValue(rawLevel) ? rawLevel : score)
 
   const updatedAtRaw = pickFirst(
     raw,
@@ -393,8 +501,10 @@ export function mapLatestScore(raw = {}, options = {}) {
     id: assetId || buildFallbackId('score', score),
     assetId: assetId || buildFallbackId('asset', score),
     score,
+    hasScoreValue,
     level,
     status: getRiskStatusLabel(level, locale),
+    riskStatus: getRiskStatusLabel(level, locale),
     riskLabel: getRiskLabel(level, locale),
     updatedAt: formatDateTime(updatedAtRaw, locale),
     updatedAtRaw,
@@ -416,11 +526,17 @@ export function mapDashboardRow(assetInput = {}, scoreInput = {}, options = {}) 
   const locale = normalizeLocale(options.locale)
 
   const asset =
-    assetInput?.assetId || assetInput?.name ? assetInput : mapAsset(assetInput, { locale })
+    assetInput?.assetId || assetInput?.name
+      ? assetInput
+      : mapAsset(assetInput, { locale })
 
   const score =
     scoreInput?.score !== undefined || scoreInput?.riskComponents
-      ? scoreInput
+      ? {
+          ...scoreInput,
+          hasScoreValue:
+            scoreInput?.hasScoreValue ?? scoreInput?.score !== undefined,
+        }
       : mapLatestScore(scoreInput, { locale })
 
   const assetId =
@@ -430,16 +546,29 @@ export function mapDashboardRow(assetInput = {}, scoreInput = {}, options = {}) 
     score.id ||
     buildFallbackId('asset', asset.name || score.score)
 
-  const level = getRiskLevel(score.level || score.status || score.score)
+  const fallbackImpactScore = asset.impactScoreAsRiskScore
+  const resolvedScore = score.hasScoreValue
+    ? clampRiskScore(score.score)
+    : clampRiskScore(fallbackImpactScore ?? 0)
+
+  const level = getRiskLevel(score.level || score.status || resolvedScore)
+  const riskStatus = getRiskStatusLabel(level, locale)
+  const assetStatus = asset.status || 'unknown'
 
   return {
     id: asset.id || score.id || assetId,
     assetId,
     name: asset.name || asset.hostname || assetId,
     type: asset.type || TYPE_FALLBACK[locale],
-    score: clampRiskScore(score.score),
+    score: resolvedScore,
+    scoreSource: score.hasScoreValue
+      ? 'latest_score'
+      : fallbackImpactScore !== null && fallbackImpactScore !== undefined
+        ? 'impact_score'
+        : 'default',
     level,
-    status: getRiskStatusLabel(level, locale),
+    status: riskStatus,
+    riskStatus,
     riskLabel: getRiskLabel(level, locale),
     updatedAt:
       score.updatedAt && score.updatedAt !== '-'
@@ -448,15 +577,24 @@ export function mapDashboardRow(assetInput = {}, scoreInput = {}, options = {}) 
     updatedAtRaw: score.updatedAtRaw || asset.updatedAtRaw || null,
     hostname: asset.hostname || asset.name || assetId,
     ipAddress: asset.ipAddress || '-',
-    assetStatus: asset.status || 'Active',
+    assetStatus,
+    assetStatusLabel:
+      asset.statusLabel || getAssetStatusLabel(assetStatus, locale),
+    impactScore: asset.impactScore,
     environment: asset.environment || '-',
     criticality: asset.criticality || '-',
     riskComponents: score.riskComponents || mapRiskComponents({}),
     vulnerabilities: [
-      ...new Set([...(asset.vulnerabilities || []), ...(score.vulnerabilities || [])]),
+      ...new Set([
+        ...(asset.vulnerabilities || []),
+        ...(score.vulnerabilities || []),
+      ]),
     ],
     securityAlerts: [
-      ...new Set([...(asset.securityAlerts || []), ...(score.securityAlerts || [])]),
+      ...new Set([
+        ...(asset.securityAlerts || []),
+        ...(score.securityAlerts || []),
+      ]),
     ],
     activities: [
       ...new Set([...(asset.activities || []), ...(score.activities || [])]),

@@ -8,6 +8,14 @@ function normalizeText(value) {
   return String(value ?? '').toLowerCase()
 }
 
+function getRiskStatus(row) {
+  return row?.riskStatus ?? row?.status ?? '-'
+}
+
+function getAssetStatusLabel(row) {
+  return row?.assetStatusLabel ?? row?.assetStatus ?? '-'
+}
+
 export default function TopRiskTable({ rows = [], onOpenPreview }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [riskFilter, setRiskFilter] = useState('')
@@ -17,7 +25,7 @@ export default function TopRiskTable({ rows = [], onOpenPreview }) {
   const t = dashboardText[language] ?? dashboardText.id
 
   const riskOptions = useMemo(() => {
-    return [...new Set(rows.map((row) => row.status).filter(Boolean))]
+    return [...new Set(rows.map((row) => getRiskStatus(row)).filter(Boolean))]
   }, [rows])
 
   const typeOptions = useMemo(() => {
@@ -28,15 +36,19 @@ export default function TopRiskTable({ rows = [], onOpenPreview }) {
     const keyword = searchQuery.trim().toLowerCase()
 
     return rows.filter((row) => {
+      const riskStatus = getRiskStatus(row)
+      const assetStatusLabel = getAssetStatusLabel(row)
+
       const matchesSearch =
         keyword === '' ||
         normalizeText(row.name).includes(keyword) ||
         normalizeText(row.type).includes(keyword) ||
         normalizeText(row.score).includes(keyword) ||
-        normalizeText(row.status).includes(keyword) ||
+        normalizeText(riskStatus).includes(keyword) ||
+        normalizeText(assetStatusLabel).includes(keyword) ||
         normalizeText(row.updatedAt).includes(keyword)
 
-      const matchesRisk = riskFilter === '' || row.status === riskFilter
+      const matchesRisk = riskFilter === '' || riskStatus === riskFilter
       const matchesType = typeFilter === '' || row.type === typeFilter
 
       return matchesSearch && matchesRisk && matchesType
@@ -102,26 +114,31 @@ export default function TopRiskTable({ rows = [], onOpenPreview }) {
               <th>{t.topRiskTable.columns.assetName}</th>
               <th>{t.topRiskTable.columns.assetType}</th>
               <th>{t.topRiskTable.columns.riskScore}</th>
-              <th>{t.topRiskTable.columns.status}</th>
+              <th>{t.topRiskTable.columns.assetStatus}</th>
               <th>{t.topRiskTable.columns.lastUpdated}</th>
             </tr>
           </thead>
 
           <tbody>
             {filteredRows.length > 0 ? (
-              filteredRows.map((row) => (
-                <tr
-                  key={row.id}
-                  className={`status-${row.level ?? normalizeText(row.status)}`}
-                  onClick={() => handleOpenPreview(row)}
-                >
-                  <td>{row.name ?? '-'}</td>
-                  <td>{row.type ?? '-'}</td>
-                  <td>{row.score ?? 0}</td>
-                  <td>{row.status ?? '-'}</td>
-                  <td>{row.updatedAt ?? '-'}</td>
-                </tr>
-              ))
+              filteredRows.map((row) => {
+                const riskStatus = getRiskStatus(row)
+                const assetStatusLabel = getAssetStatusLabel(row)
+
+                return (
+                  <tr
+                    key={row.id}
+                    className={`status-${row.level ?? normalizeText(riskStatus)}`}
+                    onClick={() => handleOpenPreview(row)}
+                  >
+                    <td>{row.name ?? '-'}</td>
+                    <td>{row.type ?? '-'}</td>
+                    <td>{row.score ?? 0}</td>
+                    <td>{assetStatusLabel}</td>
+                    <td>{row.updatedAt ?? '-'}</td>
+                  </tr>
+                )
+              })
             ) : (
               <tr>
                 <td colSpan={5} className="top-risk-empty-state">
