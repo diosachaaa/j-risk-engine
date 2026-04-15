@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 
 import App from './App.jsx'
 import { LanguageProvider } from '../shared/contexts/LanguageContext'
+import { AuthProvider } from '../shared/contexts/AuthContext'
 
 import '../shared/styles/app.css'
 import '../features/auth/styles/auth.css'
@@ -15,7 +16,9 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <LanguageProvider>
-        <App />
+        <AuthProvider>
+          <App />
+        </AuthProvider>
       </LanguageProvider>
     </BrowserRouter>
   </StrictMode>,

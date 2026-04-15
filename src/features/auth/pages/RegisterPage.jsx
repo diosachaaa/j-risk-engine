@@ -1,20 +1,65 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useLanguage } from '../../../shared/contexts/LanguageContext'
+import { useAuth } from '../../../shared/contexts/AuthContext'
 import { authText } from '../locales/authText'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
+  const { language = 'id' } = useLanguage()
+  const { register, loadingAuth, authError } = useAuth()
+
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [form, setForm] = useState({
+    name: '',
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    role: 'CISO',
+  })
+  const [localError, setLocalError] = useState('')
 
-  const { language = 'id' } = useLanguage()
   const locale = authText[language] ?? authText.id
   const t = locale.register
 
-  const handleSubmit = (event) => {
+  function setField(key, value) {
+    setForm((prev) => ({ ...prev, [key]: value }))
+  }
+
+  async function handleSubmit(event) {
     event.preventDefault()
-    navigate('/auth/verify-email')
+    setLocalError('')
+
+    if (form.password !== form.confirmPassword) {
+      setLocalError('Konfirmasi password tidak sama')
+      return
+    }
+
+    if (form.password.length < 6) {
+      setLocalError('Password minimal 6 karakter')
+      return
+    }
+
+    try {
+      await register({
+        displayName: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password,
+        role: form.role,
+      })
+
+      navigate('/auth/verify-email', {
+        replace: true,
+        state: {
+          email: form.email.trim(),
+          role: form.role,
+        },
+      })
+    } catch (error) {
+      setLocalError(error?.message || 'Register gagal')
+    }
   }
 
   return (
@@ -31,6 +76,8 @@ export default function RegisterPage() {
             type="text"
             className="auth-input"
             placeholder={t.namePlaceholder}
+            value={form.name}
+            onChange={(event) => setField('name', event.target.value)}
             required
           />
         </div>
@@ -44,7 +91,8 @@ export default function RegisterPage() {
             type="text"
             className="auth-input"
             placeholder={t.usernamePlaceholder}
-            required
+            value={form.username}
+            onChange={(event) => setField('username', event.target.value)}
           />
         </div>
 
@@ -57,8 +105,26 @@ export default function RegisterPage() {
             type="email"
             className="auth-input"
             placeholder={t.emailPlaceholder}
+            value={form.email}
+            onChange={(event) => setField('email', event.target.value)}
             required
           />
+        </div>
+
+        <div className="auth-field">
+          <label className="auth-label" htmlFor="role">
+            Role
+          </label>
+          <select
+            id="role"
+            className="auth-input"
+            value={form.role}
+            onChange={(event) => setField('role', event.target.value)}
+            required
+          >
+            <option value="CISO">CISO</option>
+            <option value="Manajemen">Manajemen</option>
+          </select>
         </div>
 
         <div className="auth-field">
@@ -72,6 +138,8 @@ export default function RegisterPage() {
               type={showPassword ? 'text' : 'password'}
               className="auth-input"
               placeholder={t.passwordPlaceholder}
+              value={form.password}
+              onChange={(event) => setField('password', event.target.value)}
               required
             />
             <button
@@ -95,6 +163,8 @@ export default function RegisterPage() {
               type={showConfirmPassword ? 'text' : 'password'}
               className="auth-input"
               placeholder={t.confirmPasswordPlaceholder}
+              value={form.confirmPassword}
+              onChange={(event) => setField('confirmPassword', event.target.value)}
               required
             />
             <button
@@ -107,8 +177,12 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <button type="submit" className="auth-button">
-          {t.submit}
+        {(localError || authError) ? (
+          <p className="auth-error-text">{localError || authError}</p>
+        ) : null}
+
+        <button type="submit" className="auth-button" disabled={loadingAuth}>
+          {loadingAuth ? 'Memproses...' : t.submit}
         </button>
       </form>
 

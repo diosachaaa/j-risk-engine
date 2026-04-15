@@ -105,6 +105,7 @@ export function buildDashboardSummary(rowsInput = []) {
       if (row.level === 'low') result.low += 1
       if (row.level === 'medium') result.medium += 1
       if (row.level === 'high') result.high += 1
+      if (row.level === 'critical') result.critical += 1
 
       if (!result.highestAsset || row.score > result.highestAsset.score) {
         result.highestAsset = row
@@ -128,6 +129,7 @@ export function buildDashboardSummary(rowsInput = []) {
       low: 0,
       medium: 0,
       high: 0,
+      critical: 0,
       totalScore: 0,
       averageScore: 0,
       totalAtRisk: 0,
@@ -140,7 +142,8 @@ export function buildDashboardSummary(rowsInput = []) {
 
   summary.averageScore =
     summary.total > 0 ? Math.round(summary.totalScore / summary.total) : 0
-  summary.totalAtRisk = summary.medium + summary.high
+
+  summary.totalAtRisk = summary.medium + summary.high + summary.critical
   summary.lastUpdated = summary.latestRow?.updatedAt ?? '-'
 
   return summary
@@ -152,15 +155,17 @@ export function buildDistribution(summaryInput = {}) {
     low: summaryInput.low ?? 0,
     medium: summaryInput.medium ?? 0,
     high: summaryInput.high ?? 0,
+    critical: summaryInput.critical ?? 0,
   }
 
   const colorMap = {
     low: '#cfe2d0',
     medium: '#f1d9aa',
-    high: '#eda1a5',
+    high: '#f5b281',
+    critical: '#eda1a5',
   }
 
-  return ['low', 'medium', 'high'].map((level) => ({
+  return ['low', 'medium', 'high', 'critical'].map((level) => ({
     level,
     value: summary[level],
     percentage:
@@ -182,31 +187,39 @@ export function buildSecurityStatusItems(summaryInput = {}, locale = 'id') {
       ? {
           low: 'Secure',
           medium: 'Warning',
-          high: 'Critical',
+          high: 'High Risk',
+          critical: 'Critical',
         }
       : {
           low: 'Secure',
           medium: 'Warning',
-          high: 'Critical',
+          high: 'Risiko Tinggi',
+          critical: 'Kritis',
         }
 
   return [
     {
       label: labelMap.low,
       value: summaryInput.low ?? 0,
-      suffix: normalizedLocale === 'en' ? 'Assets' : 'Assets',
+      suffix: 'Assets',
       tone: 'green',
     },
     {
       label: labelMap.medium,
       value: summaryInput.medium ?? 0,
-      suffix: normalizedLocale === 'en' ? 'Assets' : 'Assets',
+      suffix: 'Assets',
       tone: 'yellow',
     },
     {
       label: labelMap.high,
       value: summaryInput.high ?? 0,
-      suffix: normalizedLocale === 'en' ? 'Assets' : 'Assets',
+      suffix: 'Assets',
+      tone: 'orange',
+    },
+    {
+      label: labelMap.critical,
+      value: summaryInput.critical ?? 0,
+      suffix: 'Assets',
       tone: 'red',
     },
   ]
@@ -214,6 +227,7 @@ export function buildSecurityStatusItems(summaryInput = {}, locale = 'id') {
 
 function getDominantLevel(summary) {
   const levels = [
+    { level: 'critical', value: summary.critical ?? 0 },
     { level: 'high', value: summary.high ?? 0 },
     { level: 'medium', value: summary.medium ?? 0 },
     { level: 'low', value: summary.low ?? 0 },
@@ -256,8 +270,10 @@ export function buildTechnicalAnalysisPoints(rowsInput = [], locale = 'id') {
         id: 'analysis-priority-assets',
         segments: [
           { text: 'There are ' },
+          { text: `${summary.critical}`, highlight: true },
+          { text: ' critical assets, ' },
           { text: `${summary.high}`, highlight: true },
-          { text: ' high-risk assets and ' },
+          { text: ' high-risk assets, and ' },
           { text: `${summary.medium}`, highlight: true },
           { text: ' medium-risk assets that should be prioritized.' },
         ],
@@ -296,8 +312,10 @@ export function buildTechnicalAnalysisPoints(rowsInput = [], locale = 'id') {
       id: 'analysis-priority-assets',
       segments: [
         { text: 'Terdapat ' },
+        { text: `${summary.critical}`, highlight: true },
+        { text: ' aset kritis, ' },
         { text: `${summary.high}`, highlight: true },
-        { text: ' aset berisiko tinggi dan ' },
+        { text: ' aset berisiko tinggi, dan ' },
         { text: `${summary.medium}`, highlight: true },
         { text: ' aset berisiko sedang yang perlu diprioritaskan.' },
       ],
@@ -378,8 +396,10 @@ export function buildManagementInsightsData(
             id: 'management-insight-03',
             segments: [
               { text: 'Recommended priority: ' },
+              { text: `${summary.critical}`, highlight: true },
+              { text: ' critical assets, ' },
               { text: `${summary.high}`, highlight: true },
-              { text: ' high-risk assets and ' },
+              { text: ' high-risk assets, and ' },
               { text: `${summary.medium}`, highlight: true },
               { text: ' medium-risk assets.' },
             ],
@@ -410,8 +430,10 @@ export function buildManagementInsightsData(
             id: 'management-insight-03',
             segments: [
               { text: 'Prioritas mitigasi awal: ' },
+              { text: `${summary.critical}`, highlight: true },
+              { text: ' aset kritis, ' },
               { text: `${summary.high}`, highlight: true },
-              { text: ' aset tinggi dan ' },
+              { text: ' aset tinggi, dan ' },
               { text: `${summary.medium}`, highlight: true },
               { text: ' aset sedang.' },
             ],

@@ -5,11 +5,13 @@ const STATUS_LABELS = {
     low: 'Rendah',
     medium: 'Sedang',
     high: 'Tinggi',
+    critical: 'Kritis',
   },
   en: {
     low: 'Low',
     medium: 'Medium',
     high: 'High',
+    critical: 'Critical',
   },
 }
 
@@ -18,11 +20,13 @@ const RISK_LABELS = {
     low: 'RISIKO RENDAH',
     medium: 'RISIKO SEDANG',
     high: 'RISIKO TINGGI',
+    critical: 'RISIKO KRITIS',
   },
   en: {
     low: 'LOW RISK',
     medium: 'MEDIUM RISK',
     high: 'HIGH RISK',
+    critical: 'CRITICAL RISK',
   },
 }
 
@@ -270,7 +274,11 @@ export function getRiskLevel(value) {
   if (typeof value === 'string') {
     const normalized = value.trim().toLowerCase()
 
-    if (['high', 'tinggi', 'critical', 'kritikal'].includes(normalized)) {
+    if (['critical', 'kritikal', 'kritis', 'severe'].includes(normalized)) {
+      return 'critical'
+    }
+
+    if (['high', 'tinggi'].includes(normalized)) {
       return 'high'
     }
 
@@ -285,7 +293,8 @@ export function getRiskLevel(value) {
 
   const numericValue = clampRiskScore(value)
 
-  if (numericValue >= 75) return 'high'
+  if (numericValue >= 90) return 'critical'
+  if (numericValue >= 70) return 'high'
   if (numericValue >= 40) return 'medium'
   return 'low'
 }
@@ -316,26 +325,59 @@ export function getAssetStatusLabel(status, locale = DEFAULT_LOCALE) {
 
 export function mapRiskComponents(raw = {}) {
   const source =
-    pickFirst(raw, ['risk_components', 'riskComponents', 'components'], null) ??
-    raw
+    pickFirst(
+      raw,
+      [
+        'risk_components',
+        'riskComponents',
+        'components',
+        'breakdown',
+        'score_breakdown',
+        'scoreBreakdown',
+      ],
+      null,
+    ) ?? raw
+
+  const impact = clampRiskScore(
+    pickFirst(
+      source,
+      ['impact', 'impact_score', 'impactScore', 'score_i', 'criticality', 'criticality_score', 'criticalityScore'],
+      0,
+    ),
+  )
+
+  const vulnerability = clampRiskScore(
+    pickFirst(
+      source,
+      ['vulnerability', 'vuln', 'vuln_score', 'vulnerabilityScore', 'score_v'],
+      0,
+    ),
+  )
+
+  const threat = clampRiskScore(
+    pickFirst(source, ['threat', 'threat_score', 'threatScore', 'score_t'], 0),
+  )
+
+  const w1 = toNumber(
+    pickFirst(source, ['w1', 'weight_vulnerability', 'weightVulnerability'], 0.3),
+    0.3,
+  )
+
+  const w2 = toNumber(
+    pickFirst(source, ['w2', 'weight_threat', 'weightThreat'], 0.7),
+    0.7,
+  )
 
   return {
-    threat: clampRiskScore(
-      pickFirst(source, ['threat', 'threat_score', 'threatScore'], 0),
-    ),
-    vulnerability: clampRiskScore(
-      pickFirst(
-        source,
-        ['vulnerability', 'vuln', 'vuln_score', 'vulnerabilityScore'],
-        0,
-      ),
-    ),
-    criticality: clampRiskScore(
-      pickFirst(
-        source,
-        ['criticality', 'criticality_score', 'criticalityScore'],
-        0,
-      ),
+    impact,
+    vulnerability,
+    threat,
+    criticality: impact,
+    w1,
+    w2,
+    formula: normalizeString(
+      pickFirst(source, ['formula', 'risk_formula', 'riskFormula'], ''),
+      '',
     ),
   }
 }
@@ -476,7 +518,7 @@ export function mapLatestScore(raw = {}, options = {}) {
 
   const rawScoreValue = pickFirst(
     raw,
-    ['risk_score', 'riskScore', 'score', 'value'],
+    ['risk_score', 'riskScore', 'score', 'value', 'score_r'],
     undefined,
   )
 
@@ -485,7 +527,7 @@ export function mapLatestScore(raw = {}, options = {}) {
 
   const rawLevel = pickFirst(
     raw,
-    ['risk_level', 'riskLevel', 'level', 'status'],
+    ['severity', 'risk_level', 'riskLevel', 'level', 'status'],
     undefined,
   )
 

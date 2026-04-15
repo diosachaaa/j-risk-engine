@@ -1,24 +1,108 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLanguage } from '../../../shared/contexts/LanguageContext'
+import { useAuth } from '../../../shared/contexts/AuthContext'
 import { authText } from '../locales/authText'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const { language = 'id' } = useLanguage()
+  const {
+    login,
+    forgotPassword,
+    loadingAuth,
+    authError,
+    isAuthenticated,
+    role,
+  } = useAuth()
+
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  const [form, setForm] = useState({
+    email: '',
+    password: '',
+  })
+  const [localError, setLocalError] = useState('')
+  const [infoMessage, setInfoMessage] = useState('')
 
-  const { language = 'id' } = useLanguage()
   const locale = authText[language] ?? authText.id
   const t = locale.login
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
-    navigate('/auth/verify-code')
+  useEffect(() => {
+    if (!isAuthenticated || !role) {
+      return
+    }
+
+    if (role === 'CISO') {
+      navigate('/dashboard/ciso', { replace: true })
+      return
+    }
+
+    if (role === 'Manajemen') {
+      navigate('/dashboard/management', { replace: true })
+    }
+  }, [isAuthenticated, role, navigate])
+
+  function setField(key, value) {
+    setForm((prev) => ({ ...prev, [key]: value }))
   }
 
-  const handleForgotPassword = (event) => {
+  async function handleSubmit(event) {
     event.preventDefault()
+    setLocalError('')
+    setInfoMessage('')
+
+    try {
+      const result = await login({
+        email: form.email.trim(),
+        password: form.password,
+      })
+
+      if (!result?.emailVerified) {
+        navigate('/auth/verify-email', {
+          replace: true,
+          state: { email: form.email.trim() },
+        })
+        return
+      }
+
+      if (result?.roleRequired) {
+        navigate('/auth/verify-code', {
+          replace: true,
+          state: { email: form.email.trim() },
+        })
+        return
+      }
+
+      if (result?.session?.role === 'CISO') {
+        navigate('/dashboard/ciso', { replace: true })
+        return
+      }
+
+      if (result?.session?.role === 'Manajemen') {
+        navigate('/dashboard/management', { replace: true })
+      }
+    } catch (error) {
+      setLocalError(error?.message || 'Login gagal')
+    }
+  }
+
+  async function handleForgotPassword(event) {
+    event.preventDefault()
+    setLocalError('')
+    setInfoMessage('')
+
+    if (!form.email.trim()) {
+      setLocalError('Masukkan email terlebih dahulu')
+      return
+    }
+
+    try {
+      const result = await forgotPassword(form.email.trim())
+      setInfoMessage(result?.message || 'Email reset password berhasil dikirim')
+    } catch (error) {
+      setLocalError(error?.message || 'Gagal mengirim email reset password')
+    }
   }
 
   return (
@@ -35,6 +119,8 @@ export default function LoginPage() {
             type="email"
             className="auth-input"
             placeholder={t.emailPlaceholder}
+            value={form.email}
+            onChange={(event) => setField('email', event.target.value)}
             required
           />
         </div>
@@ -50,6 +136,8 @@ export default function LoginPage() {
               type={showPassword ? 'text' : 'password'}
               className="auth-input"
               placeholder={t.passwordPlaceholder}
+              value={form.password}
+              onChange={(event) => setField('password', event.target.value)}
               required
             />
             <button
@@ -82,8 +170,16 @@ export default function LoginPage() {
           </a>
         </div>
 
-        <button type="submit" className="auth-button">
-          {t.submit}
+        {(localError || authError) ? (
+          <p className="auth-error-text">{localError || authError}</p>
+        ) : null}
+
+        {infoMessage ? (
+          <p className="auth-info-text">{infoMessage}</p>
+        ) : null}
+
+        <button type="submit" className="auth-button" disabled={loadingAuth}>
+          {loadingAuth ? 'Memproses...' : t.submit}
         </button>
       </form>
 

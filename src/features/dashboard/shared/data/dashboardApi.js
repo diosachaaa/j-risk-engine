@@ -12,7 +12,13 @@ function normalizeAssetId(assetId) {
 }
 
 export async function getAssets(config = {}) {
-  const response = await apiClient.get(buildApiPath('/assets'), config)
+  const response = await apiClient.get(buildApiPath('/assets'), {
+    params: {
+      limit: 200,
+      ...(config.params || {}),
+    },
+    ...config,
+  })
 
   return unwrapResponseData(response)
 }

@@ -1,4 +1,8 @@
 import axios from 'axios'
+import {
+  getAccessToken,
+  clearAuthStorage,
+} from '../../features/auth/data/authStorage'
 
 const DEFAULT_API_BASE_URL = 'https://capstonedev-production.up.railway.app'
 
@@ -82,12 +86,61 @@ export const apiClient = axios.create({
   timeout: 15000,
   headers: {
     Accept: 'application/json',
+    'Content-Type': 'application/json',
   },
 })
 
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = getAccessToken()
+
+    if (token) {
+      config.headers = config.headers ?? {}
+      config.headers.Authorization = `Bearer ${token}`
+    }
+
+    return config
+  },
+  (error) => Promise.reject(normalizeApiError(error)),
+)
+
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => Promise.reject(normalizeApiError(error)),
+  (error) => {
+    const status = error?.response?.status ?? null
+    const currentPath = window.location.pathname
+
+    if (status === 401) {
+      clearAuthStorage()
+
+      if (!currentPath.startsWith('/auth')) {
+        window.location.href = '/auth/login'
+      }
+    }
+
+    if (status === 403) {
+      const detail =
+        error?.response?.data?.detail ||
+        error?.response?.data?.message ||
+        ''
+
+      const normalizedDetail =
+        typeof detail === 'string' ? detail.toLowerCase() : ''
+
+      const isRoleError = normalizedDetail.includes('role')
+      const isVerificationError = normalizedDetail.includes('verified')
+
+      if (isVerificationError && !currentPath.startsWith('/auth')) {
+        window.location.href = '/auth/verify-email'
+      }
+
+      if (isRoleError && currentPath.startsWith('/dashboard/ciso')) {
+        window.location.href = '/dashboard/management'
+      }
+    }
+
+    return Promise.reject(normalizeApiError(error))
+  },
 )
 
 export default apiClient

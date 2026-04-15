@@ -11,6 +11,9 @@ import CISODashboardPage from '../features/dashboard/ciso/pages/CISODashboardPag
 import AssetDetailPage from '../features/asset-detail/pages/AssetDetailPage'
 import ManagementDashboardPage from '../features/dashboard/management/pages/ManagementDashboardPage'
 
+import ProtectedRoute from '../shared/components/ProtectedRoute'
+import RoleGuard from '../shared/components/RoleGuard'
+
 export default function App() {
   return (
     <Routes>
@@ -23,10 +26,17 @@ export default function App() {
         <Route path="verify-email" element={<VerifyEmailPage />} />
       </Route>
 
-      <Route path="/dashboard" element={<DashboardLayout />}>
-        <Route path="ciso" element={<CISODashboardPage />} />
-        <Route path="ciso/assets/:assetId" element={<AssetDetailPage />} />
-        <Route path="management" element={<ManagementDashboardPage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route element={<RoleGuard allowedRoles={['CISO']} />}>
+            <Route path="ciso" element={<CISODashboardPage />} />
+            <Route path="ciso/assets/:assetId" element={<AssetDetailPage />} />
+          </Route>
+
+          <Route element={<RoleGuard allowedRoles={['Manajemen']} />}>
+            <Route path="management" element={<ManagementDashboardPage />} />
+          </Route>
+        </Route>
       </Route>
     </Routes>
   )
