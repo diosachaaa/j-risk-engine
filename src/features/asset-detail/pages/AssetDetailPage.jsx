@@ -10,7 +10,7 @@ import {
 } from '../data/assetDetailApi'
 import { buildAssetDetailViewModel } from '../data/assetDetailMappers'
 import { getFallbackAssetDetail } from '../data/assetDetailData'
-import { useLanguage } from '../../../shared/contexts/LanguageContext'
+import { useLanguage } from '../../../shared/contexts/useLanguage'
 
 export default function AssetDetailPage() {
   const navigate = useNavigate()

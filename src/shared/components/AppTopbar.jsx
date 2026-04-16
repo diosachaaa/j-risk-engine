@@ -1,8 +1,8 @@
-import logoBankJatim from '../../assets/images/logo-bankjatim.png'
-import { useLanguage } from '../contexts/LanguageContext'
+import logoBankJatim from '../../assets/images/logo-bankjatim.png';
+import { useLanguage } from '../contexts/useLanguage';
 
 export default function AppTopbar() {
-  const { language, setLanguage } = useLanguage()
+  const { language, setLanguage } = useLanguage();
 
   return (
     <header className="topbar">
@@ -26,9 +26,14 @@ export default function AppTopbar() {
         </button>
       </div>
 
-      <div className="topbar-right">
+      <a
+        className="topbar-right"
+        href="/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <img src={logoBankJatim} alt="Bank Jatim" className="logo" />
-      </div>
+      </a>
     </header>
-  )
+  );
 }

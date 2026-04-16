@@ -1,5 +1,5 @@
 import dashboardText from '../../shared/dashboardText'
-import { useLanguage } from '../../../../shared/contexts/LanguageContext'
+import { useLanguage } from '../../../../shared/contexts/useLanguage'
 
 export default function TechnicalAnalysisCard({ points = [] }) {
   const { language = 'id' } = useLanguage()

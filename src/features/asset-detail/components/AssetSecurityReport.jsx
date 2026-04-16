@@ -1,4 +1,4 @@
-import { useLanguage } from '../../../shared/contexts/LanguageContext'
+import { useLanguage } from '../../../shared/contexts/useLanguage'
 
 const TEXT = {
   id: {

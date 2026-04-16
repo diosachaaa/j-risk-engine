@@ -1,111 +1,109 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react';
 
 import {
   buildCisoRecentAlerts,
   buildCisoRiskTrendData,
   buildPreviewAssetData,
   getCisoDashboardStateText,
-} from '../data/dashboardData'
-import { getAssets, getLatestScores } from '../../shared/data/dashboardApi'
+} from '../data/dashboardData';
+import { getAssets, getLatestScores } from '../../shared/data/dashboardApi';
 import {
   buildDashboardSummary,
   buildSecurityStatusItems,
   buildTechnicalAnalysisPoints,
   buildTopRiskRows,
   mergeAssetsWithScores,
-} from '../../shared/data/dashboardSelectors'
-import AssetPreviewModal from '../../shared/components/AssetPreviewModal'
-import MetricStrip from '../components/MetricStrip'
-import RecentAlertCard from '../components/RecentAlertCard'
-import RiskTrendCard from '../components/RiskTrendCard'
-import SecurityStatusCard from '../components/SecurityStatusCard'
-import TechnicalAnalysisCard from '../components/TechnicalAnalysisCard'
-import TopRiskTable from '../components/TopRiskTable'
-import dashboardText from '../../shared/dashboardText'
-import { useLanguage } from '../../../../shared/contexts/LanguageContext'
+} from '../../shared/data/dashboardSelectors';
+import AssetPreviewModal from '../../shared/components/AssetPreviewModal';
+import MetricStrip from '../components/MetricStrip';
+import RecentAlertCard from '../components/RecentAlertCard';
+import RiskTrendCard from '../components/RiskTrendCard';
+import SecurityStatusCard from '../components/SecurityStatusCard';
+import TechnicalAnalysisCard from '../components/TechnicalAnalysisCard';
+import TopRiskTable from '../components/TopRiskTable';
+import { useLanguage } from '../../../../shared/contexts/useLanguage';
 
 export default function CISODashboardPage() {
-  const { language = 'id' } = useLanguage()
-  const t = dashboardText[language] ?? dashboardText.id
+  const { language = 'id' } = useLanguage();
 
-  const [selectedRow, setSelectedRow] = useState(null)
-  const [rows, setRows] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    let isMounted = true
+    let isMounted = true;
 
     async function loadDashboardData() {
       try {
-        setLoading(true)
-        setError('')
+        setLoading(true);
+        setError('');
 
         const [assetsResponse, latestScoresResponse] = await Promise.all([
           getAssets(),
           getLatestScores(),
-        ])
+        ]);
 
         const mergedRows = mergeAssetsWithScores(
           assetsResponse,
           latestScoresResponse,
           { locale: language },
-        )
+        );
 
-        if (!isMounted) return
+        if (!isMounted) return;
 
-        setRows(mergedRows)
+        setRows(mergedRows);
       } catch (requestError) {
-        if (!isMounted) return
+        if (!isMounted) return;
 
         setError(
           requestError?.message ||
             (language === 'en'
               ? 'Failed to load dashboard data.'
               : 'Gagal memuat data dashboard.'),
-        )
-        setRows([])
+        );
+        setRows([]);
       } finally {
         if (isMounted) {
-          setLoading(false)
+          setLoading(false);
         }
       }
     }
 
-    loadDashboardData()
+    loadDashboardData();
 
     return () => {
-      isMounted = false
-    }
-  }, [language])
+      isMounted = false;
+    };
+  }, [language]);
 
   const summary = useMemo(() => {
-    return buildDashboardSummary(rows)
-  }, [rows])
+    return buildDashboardSummary(rows);
+  }, [rows]);
 
   const securityStatusItems = useMemo(() => {
-    return buildSecurityStatusItems(summary, language)
-  }, [summary, language])
+    return buildSecurityStatusItems(summary, language);
+  }, [summary, language]);
 
   const topRiskRows = useMemo(() => {
-    return buildTopRiskRows(rows, 10)
-  }, [rows])
+    return buildTopRiskRows(rows, 10);
+  }, [rows]);
 
   const technicalAnalysisPoints = useMemo(() => {
-    return buildTechnicalAnalysisPoints(rows, language)
-  }, [rows, language])
+    return buildTechnicalAnalysisPoints(rows, language);
+  }, [rows, language]);
 
   const recentAlerts = useMemo(() => {
-    return buildCisoRecentAlerts(rows, language)
-  }, [rows, language])
+    return buildCisoRecentAlerts(rows, language);
+  }, [rows, language]);
 
   const riskTrendData = useMemo(() => {
-    return buildCisoRiskTrendData(rows)
-  }, [rows])
+    return buildCisoRiskTrendData(rows);
+  }, [rows]);
 
   const previewData = useMemo(() => {
-    return buildPreviewAssetData(selectedRow, language)
-  }, [selectedRow, language])
+    return buildPreviewAssetData(selectedRow, language);
+  }, [selectedRow, language]);
 
   const stateText = useMemo(() => {
     return getCisoDashboardStateText({
@@ -113,8 +111,8 @@ export default function CISODashboardPage() {
       error,
       rowsCount: rows.length,
       language,
-    })
-  }, [loading, error, rows.length, language])
+    });
+  }, [loading, error, rows.length, language]);
 
   return (
     <div className="dashboard-page dashboard-ciso-page">
@@ -144,5 +142,5 @@ export default function CISODashboardPage() {
         asset={previewData}
       />
     </div>
-  )
+  );
 }

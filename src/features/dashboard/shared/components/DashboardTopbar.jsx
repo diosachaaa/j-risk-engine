@@ -1,5 +1,5 @@
 import dashboardText from '../dashboardText'
-import { useLanguage } from '../../../../shared/contexts/LanguageContext'
+import { useLanguage } from '../../../../shared/contexts/useLanguage'
 
 export default function DashboardTopbar({ title }) {
   const { language = 'id' } = useLanguage()

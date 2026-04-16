@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 
 import dashboardText from '../../shared/dashboardText'
-import { useLanguage } from '../../../../shared/contexts/LanguageContext'
+import { useLanguage } from '../../../../shared/contexts/useLanguage'
 
 const FALLBACK_MAX = 45
 

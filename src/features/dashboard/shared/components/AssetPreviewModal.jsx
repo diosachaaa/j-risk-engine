@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { X } from 'lucide-react'
 
 import dashboardText from '../dashboardText'
-import { useLanguage } from '../../../../shared/contexts/LanguageContext'
+import { useLanguage } from '../../../../shared/contexts/useLanguage'
 
 function renderList(items = [], emptyText = '-') {
   if (!Array.isArray(items) || items.length === 0) {

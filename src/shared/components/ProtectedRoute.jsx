@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../contexts/useAuth'
 
 export default function ProtectedRoute() {
   const location = useLocation()
@@ -8,7 +8,6 @@ export default function ProtectedRoute() {
     loadingAuth,
     firebaseUser,
     isEmailVerified,
-    needsProfileCompletion,
     isAuthenticated,
   } = useAuth()
 
@@ -42,12 +41,16 @@ export default function ProtectedRoute() {
     )
   }
 
-  if (needsProfileCompletion || !isAuthenticated) {
+  if (!isAuthenticated) {
     return (
       <Navigate
-        to="/auth/complete-profile"
+        to="/auth/login"
         replace
-        state={{ from: location.pathname, email: firebaseUser.email }}
+        state={{
+          from: location.pathname,
+          email: firebaseUser.email,
+          infoMessage: 'Silakan login kembali untuk mendapatkan sesi aplikasi.',
+        }}
       />
     )
   }

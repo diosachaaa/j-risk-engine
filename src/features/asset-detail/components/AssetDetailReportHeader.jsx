@@ -1,6 +1,6 @@
 import { ArrowLeft, Download } from 'lucide-react'
 
-import { useLanguage } from '../../../shared/contexts/LanguageContext'
+import { useLanguage } from '../../../shared/contexts/useLanguage'
 
 const TEXT = {
   id: {

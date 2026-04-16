@@ -4,7 +4,6 @@ import LandingPage from '../features/landing/pages/LandingPage'
 import AuthLayout from '../features/auth/components/AuthLayout'
 import LoginPage from '../features/auth/pages/LoginPage'
 import RegisterPage from '../features/auth/pages/RegisterPage'
-import CompleteProfilePage from '../features/auth/pages/CompleteProfilePage'
 import VerifyEmailPage from '../features/auth/pages/VerifyEmailPage'
 import DashboardLayout from '../features/dashboard/shared/components/DashboardLayout'
 import CISODashboardPage from '../features/dashboard/ciso/pages/CISODashboardPage'
@@ -22,7 +21,6 @@ export default function App() {
       <Route path="/auth" element={<AuthLayout />}>
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
-        <Route path="complete-profile" element={<CompleteProfilePage />} />
         <Route path="verify-email" element={<VerifyEmailPage />} />
       </Route>
 

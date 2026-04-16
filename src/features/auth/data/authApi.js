@@ -1,5 +1,5 @@
-import axios from 'axios'
-import { authConfig } from '../constants/authConfig'
+import axios from 'axios';
+import { authConfig } from '../constants/authConfig';
 
 const authClient = axios.create({
   baseURL: authConfig.apiBaseUrl,
@@ -7,23 +7,19 @@ const authClient = axios.create({
     'Content-Type': 'application/json',
   },
   timeout: 15000,
-})
+});
+
+export async function registerWithBackend(payload) {
+  const { data } = await authClient.post('/auth/firebase/register', payload);
+  return data;
+}
 
 export async function signInWithBackend(idToken) {
   const { data } = await authClient.post('/auth/firebase/sign-in', {
     id_token: idToken,
-  })
+  });
 
-  return data
-}
-
-export async function completeProfile({ idToken, role }) {
-  const { data } = await authClient.post('/auth/firebase/complete-profile', {
-    id_token: idToken,
-    role,
-  })
-
-  return data
+  return data;
 }
 
 export async function requestBackendEmailVerification(idToken) {
@@ -31,18 +27,18 @@ export async function requestBackendEmailVerification(idToken) {
     '/auth/firebase/send-email-verification',
     {
       id_token: idToken,
-    }
-  )
+    },
+  );
 
-  return data
+  return data;
 }
 
 export async function requestBackendPasswordReset(email) {
   const { data } = await authClient.post('/auth/firebase/password-reset', {
     email,
-  })
+  });
 
-  return data
+  return data;
 }
 
-export { authClient }
+export { authClient };

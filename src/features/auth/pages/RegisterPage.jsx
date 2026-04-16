@@ -1,16 +1,16 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
-import { useLanguage } from '../../../shared/contexts/LanguageContext'
-import { useAuth } from '../../../shared/contexts/AuthContext'
-import { authText } from '../locales/authText'
+import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useLanguage } from '../../../shared/contexts/useLanguage';
+import { useAuth } from '../../../shared/contexts/useAuth';
+import { authText } from '../locales/authText';
 
 export default function RegisterPage() {
-  const navigate = useNavigate()
-  const { language = 'id' } = useLanguage()
-  const { register, loadingAuth, authError } = useAuth()
+  const navigate = useNavigate();
+  const { language = 'id' } = useLanguage();
+  const { register, loadingAuth, authError } = useAuth();
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [form, setForm] = useState({
     name: '',
     username: '',
@@ -18,47 +18,52 @@ export default function RegisterPage() {
     password: '',
     confirmPassword: '',
     role: 'CISO',
-  })
-  const [localError, setLocalError] = useState('')
+  });
+  const [localError, setLocalError] = useState('');
 
-  const locale = authText[language] ?? authText.id
-  const t = locale.register
+  const locale = authText[language] ?? authText.id;
+  const t = locale.register;
 
   function setField(key, value) {
-    setForm((prev) => ({ ...prev, [key]: value }))
+    setForm((prev) => ({ ...prev, [key]: value }));
   }
 
   async function handleSubmit(event) {
-    event.preventDefault()
-    setLocalError('')
+    event.preventDefault();
+    setLocalError('');
 
     if (form.password !== form.confirmPassword) {
-      setLocalError('Konfirmasi password tidak sama')
-      return
+      setLocalError('Konfirmasi password tidak sama');
+      return;
     }
 
     if (form.password.length < 6) {
-      setLocalError('Password minimal 6 karakter')
-      return
+      setLocalError('Password minimal 6 karakter');
+      return;
     }
 
     try {
-      await register({
-        displayName: form.name.trim(),
+      const result = await register({
+        name: form.name.trim(),
+        username: form.username.trim(),
         email: form.email.trim(),
-        password: form.password,
         role: form.role,
-      })
+        password: form.password,
+        confirmPassword: form.confirmPassword,
+      });
 
       navigate('/auth/verify-email', {
         replace: true,
         state: {
           email: form.email.trim(),
-          role: form.role,
+          isFromRegister: true,
+          infoMessage:
+            result?.message ||
+            'Registrasi berhasil. Cek email untuk verifikasi akun.',
         },
-      })
+      });
     } catch (error) {
-      setLocalError(error?.message || 'Register gagal')
+      setLocalError(error?.message || 'Register gagal');
     }
   }
 
@@ -164,7 +169,9 @@ export default function RegisterPage() {
               className="auth-input"
               placeholder={t.confirmPasswordPlaceholder}
               value={form.confirmPassword}
-              onChange={(event) => setField('confirmPassword', event.target.value)}
+              onChange={(event) =>
+                setField('confirmPassword', event.target.value)
+              }
               required
             />
             <button
@@ -177,7 +184,7 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {(localError || authError) ? (
+        {localError || authError ? (
           <p className="auth-error-text">{localError || authError}</p>
         ) : null}
 
@@ -193,5 +200,5 @@ export default function RegisterPage() {
         </Link>
       </p>
     </div>
-  )
+  );
 }

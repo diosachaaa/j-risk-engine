@@ -5,7 +5,7 @@ import AppTopbar from '../../../shared/components/AppTopbar'
 import topPattern from '../../../assets/images/top.png'
 import bottomPattern from '../../../assets/images/bottom.png'
 import { getRouteMeta } from '../../../app/routeMeta'
-import { useLanguage } from '../../../shared/contexts/LanguageContext'
+import { useLanguage } from '../../../shared/contexts/useLanguage'
 import { authText } from '../locales/authText'
 
 export default function AuthLayout() {

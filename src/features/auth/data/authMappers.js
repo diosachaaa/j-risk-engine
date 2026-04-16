@@ -17,7 +17,7 @@ export function mapBackendAuthResponse(payload) {
   return {
     message: payload?.message ?? '',
     emailVerified: Boolean(payload?.email_verified),
-    roleRequired: Boolean(payload?.role_required),
+    accountActivated: Boolean(payload?.account_activated),
     session: mapBackendSession(payload?.session),
   }
 }

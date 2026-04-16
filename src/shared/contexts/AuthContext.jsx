@@ -1,37 +1,27 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   registerFlow,
   loginFlow,
-  completeProfileFlow,
   resendVerificationFlow,
   forgotPasswordFlow,
   exchangeFirebaseTokenForSession,
   logoutFlow,
-} from '../../features/auth/data/authService'
+} from '../../features/auth/data/authService';
 import {
   getSession,
   getAccessToken,
-  getPendingRole,
   clearAuthStorage,
-} from '../../features/auth/data/authStorage'
+} from '../../features/auth/data/authStorage';
 import {
   getCurrentFirebaseUser,
   subscribeToFirebaseAuth,
-} from '../../features/auth/data/firebaseAuth'
-import { getReadableAuthError } from '../../features/auth/data/authErrors'
-
-const AuthContext = createContext(null)
+} from '../../features/auth/data/firebaseAuth';
+import { getReadableAuthError } from '../../features/auth/data/authErrors';
+import { AuthContext } from './AuthContextObject';
 
 function mapFirebaseUser(user) {
   if (!user) {
-    return null
+    return null;
   }
 
   return {
@@ -40,12 +30,12 @@ function mapFirebaseUser(user) {
     displayName: user.displayName,
     emailVerified: Boolean(user.emailVerified),
     photoURL: user.photoURL ?? null,
-  }
+  };
 }
 
 function buildStateFromSession(session, firebaseUser) {
-  const accessToken = session?.accessToken ?? getAccessToken() ?? null
-  const role = session?.role ?? null
+  const accessToken = session?.accessToken ?? getAccessToken() ?? null;
+  const role = session?.role ?? null;
 
   return {
     firebaseUser: mapFirebaseUser(firebaseUser),
@@ -54,29 +44,26 @@ function buildStateFromSession(session, firebaseUser) {
     role,
     isAuthenticated: Boolean(accessToken && session),
     isEmailVerified: Boolean(firebaseUser?.emailVerified),
-    needsProfileCompletion: Boolean(
-      firebaseUser?.emailVerified && firebaseUser && !session
-    ),
-    pendingRole: getPendingRole(),
-  }
+    needsProfileCompletion: false,
+  };
 }
 
-const initialFirebaseUser = getCurrentFirebaseUser()
-const initialSession = getSession()
+const initialFirebaseUser = getCurrentFirebaseUser();
+const initialSession = getSession();
 
 const initialState = {
   ...buildStateFromSession(initialSession, initialFirebaseUser),
   loadingAuth: true,
   initialized: false,
   authError: '',
-}
+};
 
 export function AuthProvider({ children }) {
-  const [state, setState] = useState(initialState)
+  const [state, setState] = useState(initialState);
 
   const setPartialState = useCallback((updates) => {
-    setState((prev) => ({ ...prev, ...updates }))
-  }, [])
+    setState((prev) => ({ ...prev, ...updates }));
+  }, []);
 
   const syncFromFirebaseAndSession = useCallback(
     ({ firebaseUser, session, authError = '' }) => {
@@ -86,10 +73,10 @@ export function AuthProvider({ children }) {
         authError,
         loadingAuth: false,
         initialized: true,
-      }))
+      }));
     },
-    []
-  )
+    [],
+  );
 
   const handleUnauthenticatedState = useCallback((firebaseUser = null) => {
     setState((prev) => ({
@@ -101,16 +88,16 @@ export function AuthProvider({ children }) {
       isAuthenticated: false,
       loadingAuth: false,
       initialized: true,
-    }))
-  }, [])
+    }));
+  }, []);
 
   const refreshSession = useCallback(
     async (forceRefresh = false) => {
-      const firebaseUser = getCurrentFirebaseUser()
+      const firebaseUser = getCurrentFirebaseUser();
 
       if (!firebaseUser) {
-        handleUnauthenticatedState(null)
-        return null
+        handleUnauthenticatedState(null);
+        return null;
       }
 
       setPartialState({
@@ -118,273 +105,237 @@ export function AuthProvider({ children }) {
         authError: '',
         firebaseUser: mapFirebaseUser(firebaseUser),
         isEmailVerified: Boolean(firebaseUser.emailVerified),
-      })
+      });
 
       try {
-        const mapped = await exchangeFirebaseTokenForSession(forceRefresh)
+        const mapped = await exchangeFirebaseTokenForSession(forceRefresh);
 
         syncFromFirebaseAndSession({
           firebaseUser: getCurrentFirebaseUser(),
           session: mapped?.session ?? null,
           authError: '',
-        })
+        });
 
-        return mapped
+        return mapped;
       } catch (error) {
-        const readableError = getReadableAuthError(error)
+        const readableError = getReadableAuthError(error);
 
         syncFromFirebaseAndSession({
           firebaseUser: getCurrentFirebaseUser(),
           session: null,
           authError: readableError,
-        })
+        });
 
-        return null
+        return null;
       }
     },
-    [handleUnauthenticatedState, setPartialState, syncFromFirebaseAndSession]
-  )
+    [handleUnauthenticatedState, setPartialState, syncFromFirebaseAndSession],
+  );
 
   const register = useCallback(
-    async ({ email, password, displayName, role }) => {
+    async ({ name, username, email, password, confirmPassword, role }) => {
       setPartialState({
         loadingAuth: true,
         authError: '',
-      })
+      });
 
       try {
         const result = await registerFlow({
+          name,
+          username,
           email,
           password,
-          displayName,
+          confirmPassword,
           role,
-        })
+        });
 
-        const firebaseUser = getCurrentFirebaseUser()
-
-        setState((prev) => ({
-          ...prev,
-          ...buildStateFromSession(null, firebaseUser),
+        setPartialState({
           loadingAuth: false,
           initialized: true,
           authError: '',
-        }))
+        });
 
-        return result
+        return result;
       } catch (error) {
-        const readableError = getReadableAuthError(error)
+        const readableError = getReadableAuthError(error);
 
         setPartialState({
           loadingAuth: false,
           initialized: true,
           authError: readableError,
-        })
+        });
 
-        throw error
+        throw error;
       }
     },
-    [setPartialState]
-  )
+    [setPartialState],
+  );
 
   const login = useCallback(
     async ({ email, password }) => {
       setPartialState({
         loadingAuth: true,
         authError: '',
-      })
+      });
 
       try {
-        const mapped = await loginFlow({ email, password })
+        const mapped = await loginFlow({ email, password });
 
         syncFromFirebaseAndSession({
           firebaseUser: getCurrentFirebaseUser(),
           session: mapped?.session ?? null,
           authError: '',
-        })
+        });
 
-        return mapped
+        return mapped;
       } catch (error) {
-        const readableError = getReadableAuthError(error)
+        const readableError = getReadableAuthError(error);
 
         syncFromFirebaseAndSession({
           firebaseUser: getCurrentFirebaseUser(),
           session: null,
           authError: readableError,
-        })
+        });
 
-        throw error
+        throw error;
       }
     },
-    [setPartialState, syncFromFirebaseAndSession]
-  )
-
-  const completeProfile = useCallback(
-    async (role) => {
-      setPartialState({
-        loadingAuth: true,
-        authError: '',
-      })
-
-      try {
-        const mapped = await completeProfileFlow(role)
-
-        syncFromFirebaseAndSession({
-          firebaseUser: getCurrentFirebaseUser(),
-          session: mapped?.session ?? null,
-          authError: '',
-        })
-
-        return mapped
-      } catch (error) {
-        const readableError = getReadableAuthError(error)
-
-        setPartialState({
-          loadingAuth: false,
-          initialized: true,
-          authError: readableError,
-        })
-
-        throw error
-      }
-    },
-    [setPartialState, syncFromFirebaseAndSession]
-  )
+    [setPartialState, syncFromFirebaseAndSession],
+  );
 
   const resendVerification = useCallback(async () => {
     setPartialState({
       loadingAuth: true,
       authError: '',
-    })
+    });
 
     try {
-      const result = await resendVerificationFlow()
+      const result = await resendVerificationFlow();
 
       setPartialState({
         loadingAuth: false,
         initialized: true,
         authError: '',
-      })
+      });
 
-      return result
+      return result;
     } catch (error) {
-      const readableError = getReadableAuthError(error)
+      const readableError = getReadableAuthError(error);
 
       setPartialState({
         loadingAuth: false,
         initialized: true,
         authError: readableError,
-      })
+      });
 
-      throw error
+      throw error;
     }
-  }, [setPartialState])
+  }, [setPartialState]);
 
   const forgotPassword = useCallback(
     async (email) => {
       setPartialState({
         loadingAuth: true,
         authError: '',
-      })
+      });
 
       try {
-        const result = await forgotPasswordFlow(email)
+        const result = await forgotPasswordFlow(email);
 
         setPartialState({
           loadingAuth: false,
           initialized: true,
           authError: '',
-        })
+        });
 
-        return result
+        return result;
       } catch (error) {
-        const readableError = getReadableAuthError(error)
+        const readableError = getReadableAuthError(error);
 
         setPartialState({
           loadingAuth: false,
           initialized: true,
           authError: readableError,
-        })
+        });
 
-        throw error
+        throw error;
       }
     },
-    [setPartialState]
-  )
+    [setPartialState],
+  );
 
   const logout = useCallback(async () => {
     setPartialState({
       loadingAuth: true,
       authError: '',
-    })
+    });
 
     try {
-      await logoutFlow()
+      await logoutFlow();
     } finally {
-      clearAuthStorage()
-      handleUnauthenticatedState(null)
+      clearAuthStorage();
+      handleUnauthenticatedState(null);
     }
-  }, [handleUnauthenticatedState, setPartialState])
+  }, [handleUnauthenticatedState, setPartialState]);
 
   useEffect(() => {
-    let isMounted = true
+    let isMounted = true;
 
     const unsubscribe = subscribeToFirebaseAuth(async (firebaseUser) => {
       if (!isMounted) {
-        return
+        return;
       }
 
       if (!firebaseUser) {
-        handleUnauthenticatedState(null)
-        return
+        handleUnauthenticatedState(null);
+        return;
       }
 
       setState((prev) => ({
         ...prev,
         firebaseUser: mapFirebaseUser(firebaseUser),
         isEmailVerified: Boolean(firebaseUser.emailVerified),
-        pendingRole: getPendingRole(),
         loadingAuth: true,
-      }))
+      }));
 
       try {
-        const mapped = await exchangeFirebaseTokenForSession(false)
+        const mapped = await exchangeFirebaseTokenForSession(false);
 
         if (!isMounted) {
-          return
+          return;
         }
 
         syncFromFirebaseAndSession({
           firebaseUser: getCurrentFirebaseUser(),
           session: mapped?.session ?? null,
           authError: '',
-        })
+        });
       } catch (error) {
         if (!isMounted) {
-          return
+          return;
         }
 
-        const readableError = getReadableAuthError(error)
+        const readableError = getReadableAuthError(error);
 
         syncFromFirebaseAndSession({
           firebaseUser: getCurrentFirebaseUser(),
           session: null,
           authError: readableError,
-        })
+        });
       }
-    })
+    });
 
     return () => {
-      isMounted = false
-      unsubscribe?.()
-    }
-  }, [handleUnauthenticatedState, syncFromFirebaseAndSession])
+      isMounted = false;
+      unsubscribe?.();
+    };
+  }, [handleUnauthenticatedState, syncFromFirebaseAndSession]);
 
   const value = useMemo(
     () => ({
       ...state,
       register,
       login,
-      completeProfile,
       resendVerification,
       forgotPassword,
       refreshSession,
@@ -394,23 +345,12 @@ export function AuthProvider({ children }) {
       state,
       register,
       login,
-      completeProfile,
       resendVerification,
       forgotPassword,
       refreshSession,
       logout,
-    ]
-  )
+    ],
+  );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext)
-
-  if (!context) {
-    throw new Error('useAuth harus dipakai di dalam AuthProvider')
-  }
-
-  return context
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

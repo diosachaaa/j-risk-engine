@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
 import dashboardText from '../../shared/dashboardText'
-import { useLanguage } from '../../../../shared/contexts/LanguageContext'
+import { useLanguage } from '../../../../shared/contexts/useLanguage'
 
 const toneClassMap = {
   low: 'green',

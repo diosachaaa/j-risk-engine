@@ -15,7 +15,7 @@ import ManagementMetricStrip from '../components/ManagementMetricStrip'
 import ManagementDistributionCard from '../components/ManagementDistributionCard'
 import ManagementTrendCard from '../components/ManagementTrendCard'
 import ManagementInsightCard from '../components/ManagementInsightCard'
-import { useLanguage } from '../../../../shared/contexts/LanguageContext'
+import { useLanguage } from '../../../../shared/contexts/useLanguage'
 
 export default function ManagementDashboardPage() {
   const { language = 'id' } = useLanguage()

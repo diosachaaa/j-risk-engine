@@ -1,12 +1,13 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import { useLanguage } from '../../../shared/contexts/LanguageContext'
-import { useAuth } from '../../../shared/contexts/AuthContext'
-import { authText } from '../locales/authText'
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLanguage } from '../../../shared/contexts/useLanguage';
+import { useAuth } from '../../../shared/contexts/useAuth';
+import { authText } from '../locales/authText';
 
 export default function LoginPage() {
-  const navigate = useNavigate()
-  const { language = 'id' } = useLanguage()
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { language = 'id' } = useLanguage();
   const {
     login,
     forgotPassword,
@@ -14,94 +15,98 @@ export default function LoginPage() {
     authError,
     isAuthenticated,
     role,
-  } = useAuth()
+  } = useAuth();
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [form, setForm] = useState({
-    email: '',
+    email: location.state?.email || '',
     password: '',
-  })
-  const [localError, setLocalError] = useState('')
-  const [infoMessage, setInfoMessage] = useState('')
+  });
+  const [localError, setLocalError] = useState('');
+  const [infoMessage, setInfoMessage] = useState(
+    location.state?.infoMessage || '',
+  );
 
-  const locale = authText[language] ?? authText.id
-  const t = locale.login
+  const locale = authText[language] ?? authText.id;
+  const t = locale.login;
 
   useEffect(() => {
     if (!isAuthenticated || !role) {
-      return
+      return;
     }
 
     if (role === 'CISO') {
-      navigate('/dashboard/ciso', { replace: true })
-      return
+      navigate('/dashboard/ciso', { replace: true });
+      return;
     }
 
     if (role === 'Manajemen') {
-      navigate('/dashboard/management', { replace: true })
+      navigate('/dashboard/management', { replace: true });
     }
-  }, [isAuthenticated, role, navigate])
+  }, [isAuthenticated, role, navigate]);
 
   function setField(key, value) {
-    setForm((prev) => ({ ...prev, [key]: value }))
+    setForm((prev) => ({ ...prev, [key]: value }));
   }
 
   async function handleSubmit(event) {
-    event.preventDefault()
-    setLocalError('')
-    setInfoMessage('')
+    event.preventDefault();
+    setLocalError('');
+    setInfoMessage('');
 
     try {
       const result = await login({
         email: form.email.trim(),
         password: form.password,
-      })
+      });
 
       if (!result?.emailVerified) {
         navigate('/auth/verify-email', {
           replace: true,
           state: { email: form.email.trim() },
-        })
-        return
+        });
+        return;
       }
 
-      if (result?.roleRequired) {
-        navigate('/auth/complete-profile', {
-          replace: true,
-          state: { email: form.email.trim() },
-        })
-        return
+      if (result?.accountActivated && !result?.session) {
+        setInfoMessage('Akun berhasil diaktivasi, silakan login kembali.');
+        return;
       }
 
       if (result?.session?.role === 'CISO') {
-        navigate('/dashboard/ciso', { replace: true })
-        return
+        navigate('/dashboard/ciso', { replace: true });
+        return;
       }
 
       if (result?.session?.role === 'Manajemen') {
-        navigate('/dashboard/management', { replace: true })
+        navigate('/dashboard/management', { replace: true });
+        return;
       }
+
+      setInfoMessage('Login berhasil, tetapi sesi aplikasi belum tersedia. Coba login ulang.');
     } catch (error) {
-      setLocalError(error?.message || 'Login gagal')
+      setLocalError(error?.message || 'Login gagal');
     }
   }
 
   async function handleForgotPassword(event) {
-    event.preventDefault()
-    setLocalError('')
-    setInfoMessage('')
+    event.preventDefault();
+    setLocalError('');
+    setInfoMessage('');
 
     if (!form.email.trim()) {
-      setLocalError('Masukkan email terlebih dahulu')
-      return
+      setLocalError('Masukkan email terlebih dahulu');
+      return;
     }
 
     try {
-      const result = await forgotPassword(form.email.trim())
-      setInfoMessage(result?.message || 'Email reset password berhasil dikirim')
+      const result = await forgotPassword(form.email.trim());
+      setInfoMessage(
+        result?.message || 'Email reset password berhasil dikirim',
+      );
     } catch (error) {
-      setLocalError(error?.message || 'Gagal mengirim email reset password')
+      setLocalError(error?.message || 'Gagal mengirim email reset password');
     }
   }
 
@@ -170,13 +175,11 @@ export default function LoginPage() {
           </a>
         </div>
 
-        {(localError || authError) ? (
+        {localError || authError ? (
           <p className="auth-error-text">{localError || authError}</p>
         ) : null}
 
-        {infoMessage ? (
-          <p className="auth-info-text">{infoMessage}</p>
-        ) : null}
+        {infoMessage ? <p className="auth-info-text">{infoMessage}</p> : null}
 
         <button type="submit" className="auth-button" disabled={loadingAuth}>
           {loadingAuth ? 'Memproses...' : t.submit}
@@ -190,5 +193,5 @@ export default function LoginPage() {
         </Link>
       </p>
     </div>
-  )
+  );
 }

@@ -5,7 +5,7 @@ import DashboardTopbar from './DashboardTopbar'
 import DashboardFooter from './DashboardFooter'
 import { getRouteMeta } from '../../../../app/routeMeta'
 import dashboardText from '../dashboardText'
-import { useLanguage } from '../../../../shared/contexts/LanguageContext'
+import { useLanguage } from '../../../../shared/contexts/useLanguage'
 
 export default function DashboardLayout() {
   const location = useLocation()

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { useLanguage } from '../../../shared/contexts/LanguageContext'
-import { useAuth } from '../../../shared/contexts/AuthContext'
+import { useLanguage } from '../../../shared/contexts/useLanguage'
+import { useAuth } from '../../../shared/contexts/useAuth'
 
 function getPageCopy(language) {
   if (language === 'en') {
