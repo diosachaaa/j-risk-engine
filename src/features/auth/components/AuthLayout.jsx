@@ -17,7 +17,7 @@ export default function AuthLayout() {
     login: authText[language]?.login?.title,
     register: authText[language]?.register?.title,
     verifyEmail: authText[language]?.verifyEmail?.title,
-    verifyCode: authText[language]?.verifyCode?.title,
+    completeProfile: authText[language]?.completeProfile?.title,
   }
 
   const pageTitle = titleMap[meta?.titleKey] ?? ''

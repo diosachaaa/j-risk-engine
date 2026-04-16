@@ -23,8 +23,8 @@ const routeMeta = {
     layout: 'auth',
   },
 
-  '/auth/verify-code': {
-    titleKey: 'verifyCode',
+  '/auth/complete-profile': {
+    titleKey: 'completeProfile',
     requiresAuth: false,
     layout: 'auth',
   },

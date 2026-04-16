@@ -35,7 +35,7 @@ function getPageCopy(language) {
   }
 }
 
-export default function VerifyCodePage() {
+export default function CompleteProfilePage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { language = 'id' } = useLanguage()

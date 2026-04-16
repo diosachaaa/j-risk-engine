@@ -45,7 +45,7 @@ export default function ProtectedRoute() {
   if (needsProfileCompletion || !isAuthenticated) {
     return (
       <Navigate
-        to="/auth/verify-code"
+        to="/auth/complete-profile"
         replace
         state={{ from: location.pathname, email: firebaseUser.email }}
       />

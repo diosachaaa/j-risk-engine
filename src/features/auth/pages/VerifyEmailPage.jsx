@@ -65,7 +65,7 @@ export default function VerifyEmailPage() {
       }
 
       if (result?.roleRequired) {
-        navigate('/auth/verify-code', {
+        navigate('/auth/complete-profile', {
           replace: true,
           state: { email },
         })

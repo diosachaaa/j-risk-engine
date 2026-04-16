@@ -67,7 +67,7 @@ export default function LoginPage() {
       }
 
       if (result?.roleRequired) {
-        navigate('/auth/verify-code', {
+        navigate('/auth/complete-profile', {
           replace: true,
           state: { email: form.email.trim() },
         })

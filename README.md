@@ -127,7 +127,7 @@ Main routes currently available:
 - `/`
 - `/auth/login`
 - `/auth/register`
-- `/auth/verify-code`
+- `/auth/complete-profile`
 - `/auth/verify-email`
 - `/dashboard/ciso`
 - `/dashboard/ciso/assets/:assetId`

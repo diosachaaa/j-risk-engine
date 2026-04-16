@@ -33,6 +33,8 @@ export const authText = {
       passwordPlaceholder: 'Masukkan password',
       confirmPasswordLabel: 'Konfirmasi Password',
       confirmPasswordPlaceholder: 'Masukkan ulang password',
+      roleLabel: 'Role',
+      rolePlaceholder: 'Pilih role',
       submit: 'Register',
       haveAccount: 'Sudah memiliki akun?',
       loginLink: 'Login',
@@ -40,16 +42,19 @@ export const authText = {
       hide: 'Hide',
     },
 
-    verifyCode: {
-      title: 'Kode Verifikasi',
-      codeLabel: 'Kode',
-      codePlaceholder: 'Masukkan kode',
-      description: 'Kami telah mengirimkan kode verifikasi melalui email Anda.',
-      emailMessage: 'Mohon dicek pada email@email.com.',
-      submit: 'Verifikasi',
-      resendText: 'Tidak mendapatkan email?',
-      resend: 'Kirim lagi',
-      resendMessage: 'Kode verifikasi berhasil dikirim ulang.',
+    completeProfile: {
+      title: 'Lengkapi Profil',
+      roleLabel: 'Role',
+      rolePlaceholder: 'Pilih role',
+      description:
+        'Email kamu sudah diverifikasi. Pilih role untuk menyelesaikan proses login.',
+      emailMessage: 'Masuk sebagai',
+      roleHelp:
+        'CISO akan melihat dashboard teknis yang lebih detail, sedangkan Manajemen akan melihat ringkasan eksekutif.',
+      submit: 'Lanjutkan',
+      resendText: 'Ingin kembali?',
+      resend: 'Kembali ke login',
+      successMessage: 'Profil berhasil dilengkapi.',
     },
 
     verifyEmail: {
@@ -99,6 +104,8 @@ export const authText = {
       passwordPlaceholder: 'Enter your password',
       confirmPasswordLabel: 'Confirm Password',
       confirmPasswordPlaceholder: 'Re-enter your password',
+      roleLabel: 'Role',
+      rolePlaceholder: 'Select role',
       submit: 'Register',
       haveAccount: 'Already have an account?',
       loginLink: 'Log In',
@@ -106,16 +113,19 @@ export const authText = {
       hide: 'Hide',
     },
 
-    verifyCode: {
-      title: 'Verification Code',
-      codeLabel: 'Code',
-      codePlaceholder: 'Enter code',
-      description: 'We have sent a verification code to your email.',
-      emailMessage: 'Please check email@email.com.',
-      submit: 'Verify',
-      resendText: "Didn't receive the email?",
-      resend: 'Resend',
-      resendMessage: 'Verification code has been resent.',
+    completeProfile: {
+      title: 'Complete Profile',
+      roleLabel: 'Role',
+      rolePlaceholder: 'Select role',
+      description:
+        'Your email has been verified. Please choose your role to complete account setup.',
+      emailMessage: 'Signed in as',
+      roleHelp:
+        'CISO will see detailed technical dashboards, while Management will see executive summaries.',
+      submit: 'Continue',
+      resendText: 'Need to go back?',
+      resend: 'Back to login',
+      successMessage: 'Profile completed successfully.',
     },
 
     verifyEmail: {
