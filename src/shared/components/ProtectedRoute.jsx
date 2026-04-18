@@ -1,15 +1,15 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import { useAuth } from '../contexts/useAuth'
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/useAuth';
 
 export default function ProtectedRoute() {
-  const location = useLocation()
+  const location = useLocation();
   const {
     initialized,
     loadingAuth,
     firebaseUser,
     isEmailVerified,
     isAuthenticated,
-  } = useAuth()
+  } = useAuth();
 
   if (!initialized || loadingAuth) {
     return (
@@ -18,17 +18,13 @@ export default function ProtectedRoute() {
           <p className="auth-description">Memeriksa sesi login...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!firebaseUser) {
     return (
-      <Navigate
-        to="/auth/login"
-        replace
-        state={{ from: location.pathname }}
-      />
-    )
+      <Navigate to="/auth/login" replace state={{ from: location.pathname }} />
+    );
   }
 
   if (!isEmailVerified) {
@@ -38,7 +34,7 @@ export default function ProtectedRoute() {
         replace
         state={{ from: location.pathname, email: firebaseUser.email }}
       />
-    )
+    );
   }
 
   if (!isAuthenticated) {
@@ -52,8 +48,8 @@ export default function ProtectedRoute() {
           infoMessage: 'Silakan login kembali untuk mendapatkan sesi aplikasi.',
         }}
       />
-    )
+    );
   }
 
-  return <Outlet />
+  return <Outlet />;
 }

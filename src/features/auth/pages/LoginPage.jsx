@@ -69,11 +69,6 @@ export default function LoginPage() {
         return;
       }
 
-      if (result?.accountActivated && !result?.session) {
-        setInfoMessage('Akun berhasil diaktivasi, silakan login kembali.');
-        return;
-      }
-
       if (result?.session?.role === 'CISO') {
         navigate('/dashboard/ciso', { replace: true });
         return;
@@ -84,7 +79,11 @@ export default function LoginPage() {
         return;
       }
 
-      setInfoMessage('Login berhasil, tetapi sesi aplikasi belum tersedia. Coba login ulang.');
+      setInfoMessage(
+        result?.accountActivated
+          ? 'Akun berhasil diaktivasi. Sesi belum tersedia, silakan coba login ulang.'
+          : 'Login berhasil, tetapi sesi aplikasi belum tersedia. Coba login ulang.',
+      );
     } catch (error) {
       setLocalError(error?.message || 'Login gagal');
     }

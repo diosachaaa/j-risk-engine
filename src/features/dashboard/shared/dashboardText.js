@@ -8,6 +8,8 @@ const dashboardText = {
 
     topbar: {
       user: 'User',
+      logout: 'Logout',
+      loggingOut: 'Memproses...',
     },
 
     footer: {
@@ -94,9 +96,7 @@ const dashboardText = {
         riskTrendStart: 'Rata-rata indeks risiko mingguan berada di ',
         riskTrendMiddle: ' dengan perubahan ',
         riskTrendEnd: (isIncrease) =>
-          isIncrease
-            ? ' dibanding awal minggu.'
-            : ' dibanding awal minggu.',
+          isIncrease ? ' dibanding awal minggu.' : ' dibanding awal minggu.',
         topAssetStart: 'Aset dengan risiko tertinggi saat ini adalah ',
         topAssetMiddle: ' dengan skor ',
         topAssetEnd: '.',
@@ -119,6 +119,8 @@ const dashboardText = {
 
     topbar: {
       user: 'User',
+      logout: 'Logout',
+      loggingOut: 'Processing...',
     },
 
     footer: {
@@ -220,6 +222,6 @@ const dashboardText = {
       },
     },
   },
-}
+};
 
-export default dashboardText
+export default dashboardText;

@@ -42,21 +42,6 @@ export const authText = {
       hide: 'Hide',
     },
 
-    completeProfile: {
-      title: 'Lengkapi Profil',
-      roleLabel: 'Role',
-      rolePlaceholder: 'Pilih role',
-      description:
-        'Email kamu sudah diverifikasi. Pilih role untuk menyelesaikan proses login.',
-      emailMessage: 'Masuk sebagai',
-      roleHelp:
-        'CISO akan melihat dashboard teknis yang lebih detail, sedangkan Manajemen akan melihat ringkasan eksekutif.',
-      submit: 'Lanjutkan',
-      resendText: 'Ingin kembali?',
-      resend: 'Kembali ke login',
-      successMessage: 'Profil berhasil dilengkapi.',
-    },
-
     verifyEmail: {
       title: 'Verifikasi Email',
       emailMessage:
@@ -84,7 +69,8 @@ export const authText = {
       passwordPlaceholder: 'Enter your password',
       rememberMe: 'Remember me',
       forgotPassword: 'Forgot password?',
-      forgotPasswordComingSoon: 'Forgot password feature will be available soon.',
+      forgotPasswordComingSoon:
+        'Forgot password feature will be available soon.',
       submit: 'Log In',
       noAccount: "Don't have an account?",
       registerLink: 'Register here',
@@ -113,31 +99,15 @@ export const authText = {
       hide: 'Hide',
     },
 
-    completeProfile: {
-      title: 'Complete Profile',
-      roleLabel: 'Role',
-      rolePlaceholder: 'Select role',
-      description:
-        'Your email has been verified. Please choose your role to complete account setup.',
-      emailMessage: 'Signed in as',
-      roleHelp:
-        'CISO will see detailed technical dashboards, while Management will see executive summaries.',
-      submit: 'Continue',
-      resendText: 'Need to go back?',
-      resend: 'Back to login',
-      successMessage: 'Profile completed successfully.',
-    },
-
     verifyEmail: {
       title: 'Email Verification',
       emailMessage:
         'We have sent a verification link to the registered email address.',
-      description:
-        'Please open the link to continue using the application.',
+      description: 'Please open the link to continue using the application.',
       submit: 'Continue',
       resendText: "Didn't receive the email?",
       resend: 'Resend',
       resendMessage: 'Verification email has been resent.',
     },
   },
-}
+};

@@ -100,7 +100,9 @@ export default function VerifyEmailPage() {
         return;
       }
 
-      setInfoMessage('Email berhasil diverifikasi. Silakan login untuk melanjutkan.');
+      setInfoMessage(
+        'Email berhasil diverifikasi. Silakan login untuk melanjutkan.',
+      );
     } catch (error) {
       setLocalError(error?.message || 'Gagal memverifikasi email');
     }
@@ -112,6 +114,18 @@ export default function VerifyEmailPage() {
     setInfoMessage('');
 
     try {
+      if (isFromRegister && !firebaseUser) {
+        navigate('/auth/login', {
+          replace: true,
+          state: {
+            email,
+            infoMessage:
+              'Silakan login terlebih dahulu untuk kirim ulang email verifikasi.',
+          },
+        });
+        return;
+      }
+
       const result = await resendVerification();
       setInfoMessage(
         result?.message ||

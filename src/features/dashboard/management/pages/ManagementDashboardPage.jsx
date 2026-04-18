@@ -1,104 +1,120 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react';
 
-import { getAssets, getLatestScores } from '../../shared/data/dashboardApi'
 import {
-  buildDashboardSummary,
+  getDashboardRiskTrend,
+  getDashboardSummary,
+  mapDashboardRiskTrendToView,
+  mapDashboardSummaryToView,
+} from '../../shared/data/dashboardApi';
+import {
   buildDistribution,
   buildManagementInsightsData,
-  mergeAssetsWithScores,
-} from '../../shared/data/dashboardSelectors'
-import {
-  buildManagementRiskTrendData,
-  getManagementDashboardStateText,
-} from '../data/managementDashboardData'
-import ManagementMetricStrip from '../components/ManagementMetricStrip'
-import ManagementDistributionCard from '../components/ManagementDistributionCard'
-import ManagementTrendCard from '../components/ManagementTrendCard'
-import ManagementInsightCard from '../components/ManagementInsightCard'
-import { useLanguage } from '../../../../shared/contexts/useLanguage'
+} from '../../shared/data/dashboardSelectors';
+import { getManagementDashboardStateText } from '../data/managementDashboardData';
+import ManagementMetricStrip from '../components/ManagementMetricStrip';
+import ManagementDistributionCard from '../components/ManagementDistributionCard';
+import ManagementTrendCard from '../components/ManagementTrendCard';
+import ManagementInsightCard from '../components/ManagementInsightCard';
+import { useLanguage } from '../../../../shared/contexts/useLanguage';
 
 export default function ManagementDashboardPage() {
-  const { language = 'id' } = useLanguage()
+  const { language = 'id' } = useLanguage();
 
-  const [rows, setRows] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [summary, setSummary] = useState({
+    total: 0,
+    low: 0,
+    medium: 0,
+    high: 0,
+    critical: 0,
+    averageScore: 0,
+  });
+  const [trendData, setTrendData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    let isMounted = true
+    let isMounted = true;
 
     async function loadDashboardData() {
       try {
-        setLoading(true)
-        setError('')
+        setLoading(true);
+        setError('');
 
-        const [assetsResponse, latestScoresResponse] = await Promise.all([
-          getAssets(),
-          getLatestScores(),
-        ])
+        const [summaryResponse, trendResponse] = await Promise.all([
+          getDashboardSummary(),
+          getDashboardRiskTrend('weekly'),
+        ]);
 
-        const mergedRows = mergeAssetsWithScores(
-          assetsResponse,
-          latestScoresResponse,
-          { locale: language },
-        )
+        const mappedSummary = mapDashboardSummaryToView(summaryResponse);
+        const mappedTrendData = mapDashboardRiskTrendToView(trendResponse, {
+          locale: language,
+          period: 'weekly',
+        });
 
-        if (!isMounted) return
+        if (!isMounted) return;
 
-        setRows(mergedRows)
+        setSummary(mappedSummary);
+        setTrendData(mappedTrendData);
       } catch (requestError) {
-        if (!isMounted) return
+        if (!isMounted) return;
 
         setError(
           requestError?.message ||
             (language === 'en'
               ? 'Failed to load management dashboard data.'
               : 'Gagal memuat data dashboard management.'),
-        )
-        setRows([])
+        );
+        setSummary({
+          total: 0,
+          low: 0,
+          medium: 0,
+          high: 0,
+          critical: 0,
+          averageScore: 0,
+        });
+        setTrendData([]);
       } finally {
         if (isMounted) {
-          setLoading(false)
+          setLoading(false);
         }
       }
     }
 
-    loadDashboardData()
+    loadDashboardData();
 
     return () => {
-      isMounted = false
-    }
-  }, [language])
-
-  const summary = useMemo(() => {
-    return buildDashboardSummary(rows)
-  }, [rows])
+      isMounted = false;
+    };
+  }, [language]);
 
   const distribution = useMemo(() => {
-    return buildDistribution(summary)
-  }, [summary])
-
-  const trendData = useMemo(() => {
-    return buildManagementRiskTrendData(rows)
-  }, [rows])
+    return buildDistribution(summary);
+  }, [summary]);
 
   const insightData = useMemo(() => {
-    return buildManagementInsightsData(rows, trendData, { locale: language })
-  }, [rows, trendData, language])
+    return buildManagementInsightsData([], trendData, {
+      locale: language,
+      summaryOverride: summary,
+    });
+  }, [summary, trendData, language]);
+
+  const hasDashboardData = useMemo(() => {
+    return (summary.total ?? 0) > 0 || trendData.length > 0;
+  }, [summary.total, trendData]);
 
   const stateText = useMemo(() => {
     return getManagementDashboardStateText({
       loading,
       error,
-      rowsCount: rows.length,
+      rowsCount: hasDashboardData ? 1 : 0,
       language,
-    })
-  }, [loading, error, rows.length, language])
+    });
+  }, [loading, error, hasDashboardData, language]);
 
   return (
     <div className="dashboard-page dashboard-management-page">
       <div className="dashboard-content width-constrained">
-        {(loading || error || rows.length === 0) && (
+        {(loading || error || !hasDashboardData) && (
           <section className="dashboard-panel dashboard-state-panel">
             <p>{stateText}</p>
           </section>
@@ -114,5 +130,5 @@ export default function ManagementDashboardPage() {
         <ManagementInsightCard insights={insightData.insights ?? []} />
       </div>
     </div>
-  )
+  );
 }

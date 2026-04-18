@@ -1,17 +1,17 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom';
 
-import LandingPage from '../features/landing/pages/LandingPage'
-import AuthLayout from '../features/auth/components/AuthLayout'
-import LoginPage from '../features/auth/pages/LoginPage'
-import RegisterPage from '../features/auth/pages/RegisterPage'
-import VerifyEmailPage from '../features/auth/pages/VerifyEmailPage'
-import DashboardLayout from '../features/dashboard/shared/components/DashboardLayout'
-import CISODashboardPage from '../features/dashboard/ciso/pages/CISODashboardPage'
-import AssetDetailPage from '../features/asset-detail/pages/AssetDetailPage'
-import ManagementDashboardPage from '../features/dashboard/management/pages/ManagementDashboardPage'
+import LandingPage from '../features/landing/pages/LandingPage';
+import AuthLayout from '../features/auth/components/AuthLayout';
+import LoginPage from '../features/auth/pages/LoginPage';
+import RegisterPage from '../features/auth/pages/RegisterPage';
+import VerifyEmailPage from '../features/auth/pages/VerifyEmailPage';
+import DashboardLayout from '../features/dashboard/shared/components/DashboardLayout';
+import CISODashboardPage from '../features/dashboard/ciso/pages/CISODashboardPage';
+import AssetDetailPage from '../features/asset-detail/pages/AssetDetailPage';
+import ManagementDashboardPage from '../features/dashboard/management/pages/ManagementDashboardPage';
 
-import ProtectedRoute from '../shared/components/ProtectedRoute'
-import RoleGuard from '../shared/components/RoleGuard'
+import ProtectedRoute from '../shared/components/ProtectedRoute';
+import RoleGuard from '../shared/components/RoleGuard';
 
 export default function App() {
   return (
@@ -37,5 +37,5 @@ export default function App() {
         </Route>
       </Route>
     </Routes>
-  )
+  );
 }

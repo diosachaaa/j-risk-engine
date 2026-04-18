@@ -1,32 +1,31 @@
-import { Outlet, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
+import { Outlet, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 
-import AppTopbar from '../../../shared/components/AppTopbar'
-import topPattern from '../../../assets/images/top.png'
-import bottomPattern from '../../../assets/images/bottom.png'
-import { getRouteMeta } from '../../../app/routeMeta'
-import { useLanguage } from '../../../shared/contexts/useLanguage'
-import { authText } from '../locales/authText'
+import AppTopbar from '../../../shared/components/AppTopbar';
+import topPattern from '../../../assets/images/top.png';
+import bottomPattern from '../../../assets/images/bottom.png';
+import { getRouteMeta } from '../../../app/routeMeta';
+import { useLanguage } from '../../../shared/contexts/useLanguage';
+import { authText } from '../locales/authText';
 
 export default function AuthLayout() {
-  const location = useLocation()
-  const { language = 'id' } = useLanguage()
-  const meta = getRouteMeta(location.pathname)
+  const location = useLocation();
+  const { language = 'id' } = useLanguage();
+  const meta = getRouteMeta(location.pathname);
 
   const titleMap = {
     login: authText[language]?.login?.title,
     register: authText[language]?.register?.title,
     verifyEmail: authText[language]?.verifyEmail?.title,
-    completeProfile: authText[language]?.completeProfile?.title,
-  }
+  };
 
-  const pageTitle = titleMap[meta?.titleKey] ?? ''
+  const pageTitle = titleMap[meta?.titleKey] ?? '';
 
   useEffect(() => {
     if (pageTitle) {
-      document.title = `${pageTitle} | Cyber Risk Dashboard`
+      document.title = `${pageTitle} | Cyber Risk Dashboard`;
     }
-  }, [pageTitle])
+  }, [pageTitle]);
 
   return (
     <div className="auth-layout">
@@ -51,5 +50,5 @@ export default function AuthLayout() {
         </div>
       </div>
     </div>
-  )
+  );
 }

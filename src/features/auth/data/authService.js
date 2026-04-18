@@ -11,11 +11,7 @@ import {
   requestBackendEmailVerification,
   requestBackendPasswordReset,
 } from './authApi';
-import {
-  saveAccessToken,
-  saveSession,
-  clearAuthStorage,
-} from './authStorage';
+import { saveAccessToken, saveSession, clearAuthStorage } from './authStorage';
 import { mapBackendAuthResponse } from './authMappers';
 
 function persistBackendSession(mappedAuth) {
@@ -27,6 +23,24 @@ function persistBackendSession(mappedAuth) {
   saveSession(mappedAuth.session);
 
   return mappedAuth;
+}
+
+async function exchangeWithActivationFallback(forceRefresh = false) {
+  const idToken = await getFirebaseIdToken(forceRefresh);
+  const response = await signInWithBackend(idToken);
+  const mapped = mapBackendAuthResponse(response);
+
+  // First sign-in after verification can activate account without returning session.
+  // Retry once with a refreshed token so user can proceed without pressing login again.
+  if (mapped?.accountActivated && !mapped?.session) {
+    const refreshedToken = await getFirebaseIdToken(true);
+    const retryResponse = await signInWithBackend(refreshedToken);
+    const retryMapped = mapBackendAuthResponse(retryResponse);
+
+    return persistBackendSession(retryMapped);
+  }
+
+  return persistBackendSession(mapped);
 }
 
 export async function registerFlow({
@@ -57,11 +71,7 @@ export async function registerFlow({
 export async function loginFlow({ email, password }) {
   await loginWithEmail({ email, password });
 
-  const idToken = await getFirebaseIdToken();
-  const response = await signInWithBackend(idToken);
-  const mapped = mapBackendAuthResponse(response);
-
-  return persistBackendSession(mapped);
+  return exchangeWithActivationFallback(false);
 }
 
 export async function resendVerificationFlow() {
@@ -85,11 +95,7 @@ export async function forgotPasswordFlow(email) {
 }
 
 export async function exchangeFirebaseTokenForSession(forceRefresh = false) {
-  const idToken = await getFirebaseIdToken(forceRefresh);
-  const response = await signInWithBackend(idToken);
-  const mapped = mapBackendAuthResponse(response);
-
-  return persistBackendSession(mapped);
+  return exchangeWithActivationFallback(forceRefresh);
 }
 
 export async function logoutFlow() {

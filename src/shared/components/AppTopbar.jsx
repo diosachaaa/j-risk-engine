@@ -29,7 +29,7 @@ export default function AppTopbar() {
       <a
         className="topbar-right"
         href="/"
-        target="_blank"
+        // target="_blank"
         rel="noopener noreferrer"
       >
         <img src={logoBankJatim} alt="Bank Jatim" className="logo" />

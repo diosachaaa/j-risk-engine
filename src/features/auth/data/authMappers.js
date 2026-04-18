@@ -1,6 +1,6 @@
 export function mapBackendSession(session) {
   if (!session) {
-    return null
+    return null;
   }
 
   return {
@@ -10,7 +10,7 @@ export function mapBackendSession(session) {
     role: session.role ?? null,
     username: session.username ?? null,
     email: session.email ?? null,
-  }
+  };
 }
 
 export function mapBackendAuthResponse(payload) {
@@ -19,5 +19,5 @@ export function mapBackendAuthResponse(payload) {
     emailVerified: Boolean(payload?.email_verified),
     accountActivated: Boolean(payload?.account_activated),
     session: mapBackendSession(payload?.session),
-  }
+  };
 }

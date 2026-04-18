@@ -23,12 +23,6 @@ const routeMeta = {
     layout: 'auth',
   },
 
-  '/auth/complete-profile': {
-    titleKey: 'completeProfile',
-    requiresAuth: false,
-    layout: 'auth',
-  },
-
   '/dashboard/ciso': {
     titleKey: 'ciso',
     requiresAuth: true,
@@ -46,16 +40,16 @@ const routeMeta = {
     requiresAuth: true,
     layout: 'dashboard',
   },
-}
+};
 
 export function getRouteMeta(pathname) {
-  if (routeMeta[pathname]) return routeMeta[pathname]
+  if (routeMeta[pathname]) return routeMeta[pathname];
 
   if (/^\/dashboard\/ciso\/assets\/[^/]+$/.test(pathname)) {
-    return routeMeta['/dashboard/ciso/assets/:assetId']
+    return routeMeta['/dashboard/ciso/assets/:assetId'];
   }
 
-  return null
+  return null;
 }
 
-export default routeMeta
+export default routeMeta;
