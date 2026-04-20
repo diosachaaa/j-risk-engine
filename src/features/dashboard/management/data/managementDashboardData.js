@@ -37,6 +37,45 @@ function formatShortLabel(dateValue, language = 'id') {
   }).format(date);
 }
 
+function formatTrendLabel(dateValue, period = 'weekly', language = 'id', fallback = '-') {
+  const locale = normalizeLanguage(language);
+
+  const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+
+  if (Number.isNaN(date.getTime())) {
+    return fallback;
+  }
+
+  if (period === 'yearly') {
+    return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
+      month: 'short',
+    }).format(date);
+  }
+
+  if (period === 'monthly') {
+    return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
+      day: '2-digit',
+      month: 'short',
+    }).format(date);
+  }
+
+  return formatShortLabel(date, language);
+}
+
+function getTrendSource(payload = {}) {
+  if (!payload || typeof payload !== 'object') {
+    return {};
+  }
+
+  const source = payload.data;
+
+  if (source && typeof source === 'object' && !Array.isArray(source)) {
+    return source;
+  }
+
+  return payload;
+}
+
 function getToneByValue(value) {
   if (value >= 75) return 'red';
   if (value >= 40) return 'yellow';
@@ -92,6 +131,33 @@ export function buildManagementRiskTrendData(rows = [], language = 'id') {
   }
 
   return buildGroupedTrend(rows, language);
+}
+
+export function mapManagementRiskTrendPayload(payload = {}, language = 'id') {
+  const source = getTrendSource(payload);
+
+  const period =
+    typeof source.period === 'string' && source.period.trim() !== ''
+      ? source.period.trim().toLowerCase()
+      : 'weekly';
+
+  const points = Array.isArray(source.points) ? source.points : [];
+
+  return points.map((point, index) => {
+    const timestamp = point.timestamp ?? point.time ?? null;
+    const value = clampRiskScore(point.average_risk ?? point.averageRisk);
+
+    return {
+      id: `management-trend-${timestamp || index}`,
+      label: formatTrendLabel(timestamp, period, language, `P${index + 1}`),
+      value,
+      tone: getToneByValue(value),
+      dateKey:
+        typeof timestamp === 'string' && timestamp.length >= 10
+          ? timestamp.slice(0, 10)
+          : null,
+    };
+  });
 }
 
 export function getManagementDashboardStateText({

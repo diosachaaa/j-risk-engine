@@ -89,6 +89,7 @@ const dashboardText = {
         low: 'Low',
         medium: 'Medium',
         high: 'High',
+        critical: 'Kritis',
       },
       insights: {
         riskTrendStart: 'Rata-rata indeks risiko mingguan berada di ',
@@ -200,6 +201,7 @@ const dashboardText = {
         low: 'Low',
         medium: 'Medium',
         high: 'High',
+        critical: 'Critical',
       },
       insights: {
         riskTrendStart: 'The weekly risk index average is ',

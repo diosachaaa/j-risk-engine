@@ -1,15 +1,24 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { getAssets, getLatestScores } from '../../shared/data/dashboardApi'
 import {
+  getAssets,
+  getDashboardAssetsTable,
+  getDashboardRiskTrend,
+  getDashboardSummary,
+  getLatestScores,
+} from '../../shared/data/dashboardApi'
+import {
+  buildAssetsTableRows,
   buildDashboardSummary,
   buildDistribution,
   buildManagementInsightsData,
+  mergeDashboardSummary,
   mergeAssetsWithScores,
 } from '../../shared/data/dashboardSelectors'
 import {
   buildManagementRiskTrendData,
   getManagementDashboardStateText,
+  mapManagementRiskTrendPayload,
 } from '../data/managementDashboardData'
 import ManagementMetricStrip from '../components/ManagementMetricStrip'
 import ManagementDistributionCard from '../components/ManagementDistributionCard'
@@ -21,6 +30,8 @@ export default function ManagementDashboardPage() {
   const { language = 'id' } = useLanguage()
 
   const [rows, setRows] = useState([])
+  const [riskTrendPayload, setRiskTrendPayload] = useState(null)
+  const [summaryPayload, setSummaryPayload] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -32,10 +43,19 @@ export default function ManagementDashboardPage() {
         setLoading(true)
         setError('')
 
-        const [assetsResponse, latestScoresResponse] = await Promise.all([
-          getAssets(),
-          getLatestScores(),
-        ])
+        const [
+          assetsResponse,
+          latestScoresResponse,
+          dashboardSummaryResponse,
+          assetsTableResponse,
+          weeklyTrendResponse,
+        ] = await Promise.all([
+              getAssets().catch(() => []),
+              getLatestScores().catch(() => []),
+            getDashboardSummary().catch(() => null),
+            getDashboardAssetsTable().catch(() => null),
+            getDashboardRiskTrend({ params: { period: 'weekly' } }).catch(() => null),
+          ])
 
         const mergedRows = mergeAssetsWithScores(
           assetsResponse,
@@ -43,9 +63,15 @@ export default function ManagementDashboardPage() {
           { locale: language },
         )
 
+        const assetsTableRows = buildAssetsTableRows(assetsTableResponse, {
+          locale: language,
+        })
+
         if (!isMounted) return
 
-        setRows(mergedRows)
+        setRows(assetsTableRows.length > 0 ? assetsTableRows : mergedRows)
+        setSummaryPayload(dashboardSummaryResponse)
+        setRiskTrendPayload(weeklyTrendResponse)
       } catch (requestError) {
         if (!isMounted) return
 
@@ -56,6 +82,8 @@ export default function ManagementDashboardPage() {
               : 'Gagal memuat data dashboard management.'),
         )
         setRows([])
+        setSummaryPayload(null)
+        setRiskTrendPayload(null)
       } finally {
         if (isMounted) {
           setLoading(false)
@@ -71,16 +99,22 @@ export default function ManagementDashboardPage() {
   }, [language])
 
   const summary = useMemo(() => {
-    return buildDashboardSummary(rows)
-  }, [rows])
+    return mergeDashboardSummary(buildDashboardSummary(rows), summaryPayload)
+  }, [rows, summaryPayload])
 
   const distribution = useMemo(() => {
     return buildDistribution(summary)
   }, [summary])
 
   const trendData = useMemo(() => {
-    return buildManagementRiskTrendData(rows)
-  }, [rows])
+    const mappedTrend = mapManagementRiskTrendPayload(riskTrendPayload, language)
+
+    if (mappedTrend.length > 0) {
+      return mappedTrend
+    }
+
+    return buildManagementRiskTrendData(rows, language)
+  }, [riskTrendPayload, rows, language])
 
   const insightData = useMemo(() => {
     return buildManagementInsightsData(rows, trendData, { locale: language })

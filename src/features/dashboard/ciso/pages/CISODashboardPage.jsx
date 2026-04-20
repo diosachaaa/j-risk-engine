@@ -6,9 +6,17 @@ import {
   buildPreviewAssetData,
   getCisoDashboardStateText,
 } from '../data/dashboardData';
-import { getAssets, getLatestScores } from '../../shared/data/dashboardApi';
 import {
+  getAssets,
+  getDashboardAssetsTable,
+  getDashboardRiskTrend,
+  getDashboardSummary,
+  getLatestScores,
+} from '../../shared/data/dashboardApi';
+import {
+  buildAssetsTableRows,
   buildDashboardSummary,
+  mergeDashboardSummary,
   buildSecurityStatusItems,
   buildTechnicalAnalysisPoints,
   buildTopRiskRows,
@@ -28,6 +36,9 @@ export default function CISODashboardPage() {
 
   const [selectedRow, setSelectedRow] = useState(null);
   const [rows, setRows] = useState([]);
+  const [assetsTablePayload, setAssetsTablePayload] = useState(null);
+  const [riskTrendPayloadByPeriod, setRiskTrendPayloadByPeriod] = useState({});
+  const [summaryPayload, setSummaryPayload] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -39,10 +50,25 @@ export default function CISODashboardPage() {
         setLoading(true);
         setError('');
 
-        const [assetsResponse, latestScoresResponse] = await Promise.all([
-          getAssets(),
-          getLatestScores(),
-        ]);
+        const [
+          assetsResponse,
+          latestScoresResponse,
+          dashboardSummaryResponse,
+          assetsTableResponse,
+          dailyTrendResponse,
+          weeklyTrendResponse,
+          monthlyTrendResponse,
+          yearlyTrendResponse,
+        ] = await Promise.all([
+            getAssets().catch(() => []),
+            getLatestScores().catch(() => []),
+            getDashboardSummary().catch(() => null),
+            getDashboardAssetsTable().catch(() => null),
+            getDashboardRiskTrend({ params: { period: 'daily' } }).catch(() => null),
+            getDashboardRiskTrend({ params: { period: 'weekly' } }).catch(() => null),
+            getDashboardRiskTrend({ params: { period: 'monthly' } }).catch(() => null),
+            getDashboardRiskTrend({ params: { period: 'yearly' } }).catch(() => null),
+          ]);
 
         const mergedRows = mergeAssetsWithScores(
           assetsResponse,
@@ -53,6 +79,14 @@ export default function CISODashboardPage() {
         if (!isMounted) return;
 
         setRows(mergedRows);
+        setSummaryPayload(dashboardSummaryResponse);
+        setAssetsTablePayload(assetsTableResponse);
+        setRiskTrendPayloadByPeriod({
+          daily: dailyTrendResponse,
+          weekly: weeklyTrendResponse,
+          monthly: monthlyTrendResponse,
+          yearly: yearlyTrendResponse,
+        });
       } catch (requestError) {
         if (!isMounted) return;
 
@@ -63,6 +97,9 @@ export default function CISODashboardPage() {
               : 'Gagal memuat data dashboard.'),
         );
         setRows([]);
+        setSummaryPayload(null);
+        setAssetsTablePayload(null);
+        setRiskTrendPayloadByPeriod({});
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -78,16 +115,22 @@ export default function CISODashboardPage() {
   }, [language]);
 
   const summary = useMemo(() => {
-    return buildDashboardSummary(rows);
-  }, [rows]);
+    return mergeDashboardSummary(buildDashboardSummary(rows), summaryPayload);
+  }, [rows, summaryPayload]);
+
+  const assetsTableRows = useMemo(() => {
+    return buildAssetsTableRows(assetsTablePayload, { locale: language });
+  }, [assetsTablePayload, language]);
 
   const securityStatusItems = useMemo(() => {
     return buildSecurityStatusItems(summary, language);
   }, [summary, language]);
 
   const topRiskRows = useMemo(() => {
-    return buildTopRiskRows(rows, 10);
-  }, [rows]);
+    const sourceRows = assetsTableRows.length > 0 ? assetsTableRows : rows;
+
+    return buildTopRiskRows(sourceRows, 10);
+  }, [assetsTableRows, rows]);
 
   const technicalAnalysisPoints = useMemo(() => {
     return buildTechnicalAnalysisPoints(rows, language);
@@ -98,8 +141,12 @@ export default function CISODashboardPage() {
   }, [rows, language]);
 
   const riskTrendData = useMemo(() => {
-    return buildCisoRiskTrendData(rows);
-  }, [rows]);
+    return buildCisoRiskTrendData(riskTrendPayloadByPeriod, language);
+  }, [riskTrendPayloadByPeriod, language]);
+
+  const rowsCountForState = useMemo(() => {
+    return Math.max(rows.length, assetsTableRows.length);
+  }, [rows.length, assetsTableRows.length]);
 
   const previewData = useMemo(() => {
     return buildPreviewAssetData(selectedRow, language);
@@ -109,15 +156,15 @@ export default function CISODashboardPage() {
     return getCisoDashboardStateText({
       loading,
       error,
-      rowsCount: rows.length,
+      rowsCount: rowsCountForState,
       language,
     });
-  }, [loading, error, rows.length, language]);
+  }, [loading, error, rowsCountForState, language]);
 
   return (
     <div className="dashboard-page dashboard-ciso-page">
       <div className="dashboard-content width-constrained">
-        {(loading || error || rows.length === 0) && (
+        {(loading || error || rowsCountForState === 0) && (
           <section className="dashboard-panel dashboard-state-panel">
             <p>{stateText}</p>
           </section>

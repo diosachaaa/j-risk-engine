@@ -199,8 +199,20 @@
 }
 
 .risk-trend-delta {
-  color: var(--green-main);
+  color: var(--text-muted);
   font-size: 20px;
+}
+
+.risk-trend-delta.up {
+  color: var(--red-main);
+}
+
+.risk-trend-delta.down {
+  color: var(--green-main);
+}
+
+.risk-trend-delta.neutral {
+  color: var(--text-muted);
 }
 
 .risk-trend-summary p {
@@ -327,6 +339,26 @@
   border-radius: 0;
 }
 
+.risk-trend-bar.low,
+.risk-trend-bar.green {
+  background: #cfe2d0;
+}
+
+.risk-trend-bar.medium,
+.risk-trend-bar.yellow {
+  background: #f1d9aa;
+}
+
+.risk-trend-bar.high,
+.risk-trend-bar.orange {
+  background: #f5b281;
+}
+
+.risk-trend-bar.critical,
+.risk-trend-bar.red {
+  background: #eda1a5;
+}
+
 .risk-trend-bar.muted-red {
   background: #d8868b;
 }
@@ -427,6 +459,10 @@
   background: var(--yellow-soft);
 }
 
+.status-row.orange {
+  background: #f5e0cc;
+}
+
 .status-row.red {
   background: var(--red-soft);
 }
@@ -453,6 +489,10 @@
 
 .status-row.yellow strong {
   color: var(--yellow-main);
+}
+
+.status-row.orange strong {
+  color: #b86916;
 }
 
 .status-row.red strong {
@@ -608,7 +648,17 @@
   color: #b24747;
 }
 
+.top-risk-table tbody tr.status-critical {
+  background: #efcdd0;
+  color: #b24747;
+}
+
 .top-risk-table tbody tr.status-sedang {
+  background: #f1dbac;
+  color: #5b4b24;
+}
+
+.top-risk-table tbody tr.status-medium {
   background: #f1dbac;
   color: #5b4b24;
 }
@@ -616,6 +666,21 @@
 .top-risk-table tbody tr.status-rendah {
   background: #ffffff;
   color: #484848;
+}
+
+.top-risk-table tbody tr.status-low {
+  background: #ffffff;
+  color: #484848;
+}
+
+.top-risk-table tbody tr.status-high {
+  background: #f5dcc1;
+  color: #8f4f0f;
+}
+
+.top-risk-table tbody tr.status-unknown {
+  background: #f3f3f3;
+  color: #5d5d5d;
 }
 
 .top-risk-empty-state {

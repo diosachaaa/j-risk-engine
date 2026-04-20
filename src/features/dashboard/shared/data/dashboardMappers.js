@@ -233,11 +233,11 @@ function extractStringArray(value) {
       if (item && typeof item === 'object') {
         return normalizeString(
           item.name ||
-            item.title ||
-            item.description ||
-            item.id ||
-            item.code ||
-            item.cve,
+          item.title ||
+          item.description ||
+          item.id ||
+          item.code ||
+          item.cve,
         )
       }
 
@@ -258,10 +258,10 @@ function mapAlertList(value) {
       if (item && typeof item === 'object') {
         return normalizeString(
           item.description ||
-            item.message ||
-            item.title ||
-            item.rule ||
-            item.rule_name,
+          item.message ||
+          item.title ||
+          item.rule ||
+          item.rule_name,
         )
       }
 
@@ -273,6 +273,10 @@ function mapAlertList(value) {
 export function getRiskLevel(value) {
   if (typeof value === 'string') {
     const normalized = value.trim().toLowerCase()
+
+    if (['unknown', 'n/a', '-'].includes(normalized)) {
+      return 'unknown'
+    }
 
     if (['critical', 'kritikal', 'kritis', 'severe'].includes(normalized)) {
       return 'critical'
@@ -303,12 +307,20 @@ export function getRiskStatusLabel(level, locale = DEFAULT_LOCALE) {
   const normalizedLocale = normalizeLocale(locale)
   const normalizedLevel = getRiskLevel(level)
 
+  if (normalizedLevel === 'unknown') {
+    return normalizedLocale === 'en' ? 'Unknown' : 'Tidak Diketahui'
+  }
+
   return STATUS_LABELS[normalizedLocale][normalizedLevel]
 }
 
 export function getRiskLabel(level, locale = DEFAULT_LOCALE) {
   const normalizedLocale = normalizeLocale(locale)
   const normalizedLevel = getRiskLevel(level)
+
+  if (normalizedLevel === 'unknown') {
+    return normalizedLocale === 'en' ? 'UNKNOWN RISK' : 'RISIKO TIDAK DIKETAHUI'
+  }
 
   return RISK_LABELS[normalizedLocale][normalizedLevel]
 }
@@ -460,6 +472,8 @@ export function mapAsset(raw = {}, options = {}) {
     [
       'updated_at',
       'updatedAt',
+      'last_updated',
+      'lastUpdated',
       'last_seen',
       'lastSeen',
       'timestamp',
@@ -527,7 +541,15 @@ export function mapLatestScore(raw = {}, options = {}) {
 
   const rawLevel = pickFirst(
     raw,
-    ['severity', 'risk_level', 'riskLevel', 'level', 'status'],
+    [
+      'severity',
+      'risk_level',
+      'riskLevel',
+      'risk_status',
+      'riskStatus',
+      'level',
+      'status',
+    ],
     undefined,
   )
 
@@ -535,7 +557,15 @@ export function mapLatestScore(raw = {}, options = {}) {
 
   const updatedAtRaw = pickFirst(
     raw,
-    ['timestamp', 'updated_at', 'updatedAt', 'calculated_at', 'calculatedAt'],
+    [
+      'timestamp',
+      'updated_at',
+      'updatedAt',
+      'last_updated',
+      'lastUpdated',
+      'calculated_at',
+      'calculatedAt',
+    ],
     null,
   )
 
@@ -575,10 +605,10 @@ export function mapDashboardRow(assetInput = {}, scoreInput = {}, options = {}) 
   const score =
     scoreInput?.score !== undefined || scoreInput?.riskComponents
       ? {
-          ...scoreInput,
-          hasScoreValue:
-            scoreInput?.hasScoreValue ?? scoreInput?.score !== undefined,
-        }
+        ...scoreInput,
+        hasScoreValue:
+          scoreInput?.hasScoreValue ?? scoreInput?.score !== undefined,
+      }
       : mapLatestScore(scoreInput, { locale })
 
   const assetId =
@@ -657,5 +687,24 @@ export function mapAssetsPayload(payload, options = {}) {
 export function mapLatestScoresPayload(payload, options = {}) {
   return extractCollection(payload, ['scores', 'items', 'data']).map((item) =>
     mapLatestScore(item, options),
+  )
+}
+
+export function mapAssetsTablePayload(payload, options = {}) {
+  const locale = normalizeLocale(options.locale)
+
+  return extractCollection(payload, ['data', 'items', 'rows', 'assets']).map(
+    (item) => {
+      const mappedRow = mapDashboardRow(item, item, { locale })
+
+      if (mappedRow.level !== 'unknown') {
+        return mappedRow
+      }
+
+      return {
+        ...mappedRow,
+        scoreSource: 'no_score',
+      }
+    },
   )
 }

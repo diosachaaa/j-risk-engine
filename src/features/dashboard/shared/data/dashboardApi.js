@@ -29,6 +29,31 @@ export async function getLatestScores(config = {}) {
   return unwrapResponseData(response)
 }
 
+export async function getDashboardSummary(config = {}) {
+  const response = await apiClient.get(buildApiPath('/dashboard/summary'), config)
+
+  return unwrapResponseData(response)
+}
+
+export async function getDashboardRiskTrend(config = {}) {
+  const response = await apiClient.get(buildApiPath('/dashboard/risk-trend'), config)
+
+  return unwrapResponseData(response)
+}
+
+export async function getDashboardAssetsTable(config = {}) {
+  const response = await apiClient.get(buildApiPath('/dashboard/assets-table'), {
+    params: {
+      page: 1,
+      page_size: 200,
+      ...(config.params || {}),
+    },
+    ...config,
+  })
+
+  return unwrapResponseData(response)
+}
+
 export async function getAssetById(assetId, config = {}) {
   const normalizedAssetId = normalizeAssetId(assetId)
 
@@ -43,6 +68,9 @@ export async function getAssetById(assetId, config = {}) {
 const dashboardApi = {
   getAssets,
   getLatestScores,
+  getDashboardSummary,
+  getDashboardRiskTrend,
+  getDashboardAssetsTable,
   getAssetById,
 }
 

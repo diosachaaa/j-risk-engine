@@ -3,16 +3,11 @@ import { useMemo } from 'react'
 import dashboardText from '../../shared/dashboardText'
 import { useLanguage } from '../../../../shared/contexts/useLanguage'
 
-const toneClassMap = {
-  low: 'green',
-  medium: 'yellow',
-  high: 'red',
-}
-
 const fallbackSegments = [
   { level: 'low', value: 0, percentage: 0, color: '#cfe2d0' },
   { level: 'medium', value: 0, percentage: 0, color: '#f1d9aa' },
-  { level: 'high', value: 0, percentage: 0, color: '#eda1a5' },
+  { level: 'high', value: 0, percentage: 0, color: '#f5b281' },
+  { level: 'critical', value: 0, percentage: 0, color: '#eda1a5' },
 ]
 
 function buildGradient(segments) {
@@ -118,9 +113,10 @@ export default function ManagementDistributionCard({ segments = [] }) {
           <div key={segment.level} className="management-legend-row">
             <div className="management-legend-label">
               <span
-                className={`management-legend-swatch ${toneClassMap[segment.level]}`}
+                className="management-legend-swatch"
+                style={{ backgroundColor: segment.color }}
               />
-              <span>{t.managementPage.labels[segment.level]}</span>
+              <span>{t.managementPage.labels[segment.level] ?? segment.level}</span>
             </div>
 
             <span>{segment.percentage}%</span>
