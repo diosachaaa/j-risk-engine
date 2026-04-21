@@ -8,6 +8,8 @@ const dashboardText = {
 
     topbar: {
       user: 'User',
+      logout: 'Keluar',
+      loggingOut: 'Processing...',
     },
 
     footer: {
@@ -120,6 +122,8 @@ const dashboardText = {
 
     topbar: {
       user: 'User',
+      logout: 'Logout',
+      loggingOut: 'Processing...',
     },
 
     footer: {

@@ -93,6 +93,9 @@ export async function exchangeFirebaseTokenForSession(forceRefresh = false) {
 }
 
 export async function logoutFlow() {
-  clearAuthStorage();
-  await logoutFirebase();
+  try {
+    await logoutFirebase();
+  } finally {
+    clearAuthStorage();
+  }
 }

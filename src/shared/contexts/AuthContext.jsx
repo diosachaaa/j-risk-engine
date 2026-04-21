@@ -272,6 +272,10 @@ export function AuthProvider({ children }) {
 
     try {
       await logoutFlow();
+    } catch (error) {
+      setPartialState({
+        authError: getReadableAuthError(error),
+      });
     } finally {
       clearAuthStorage();
       handleUnauthenticatedState(null);
