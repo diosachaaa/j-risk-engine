@@ -62,6 +62,10 @@ function hasValue(value) {
   return value !== undefined && value !== null && value !== ''
 }
 
+function hasOwnProperty(source, key) {
+  return !!source && Object.prototype.hasOwnProperty.call(source, key)
+}
+
 function normalizeString(value, fallback = '') {
   if (value === undefined || value === null) return fallback
 
@@ -93,6 +97,12 @@ function pickFirst(source, paths = [], fallback = null) {
   return fallback
 }
 
+function hasExplicitNullScore(raw = {}) {
+  const scorePaths = ['risk_score', 'riskScore', 'score', 'value', 'score_r']
+
+  return scorePaths.some((path) => hasOwnProperty(raw, path) && raw[path] === null)
+}
+
 function toNumber(value, fallback = 0) {
   if (typeof value === 'number' && Number.isFinite(value)) return value
 
@@ -112,6 +122,13 @@ function clamp(value, min, max) {
 
 function clampRiskScore(value) {
   return clamp(Math.round(toNumber(value, 0)), 0, 100)
+}
+
+function normalizeRiskScore(value) {
+  const numericValue = toNumber(value, 0)
+  const roundedOneDecimal = Math.round(numericValue * 10) / 10
+
+  return clamp(roundedOneDecimal, 0, 100)
 }
 
 function toTitleCase(value, fallback = '-') {
@@ -537,7 +554,8 @@ export function mapLatestScore(raw = {}, options = {}) {
   )
 
   const hasScoreValue = hasValue(rawScoreValue)
-  const score = clampRiskScore(hasScoreValue ? rawScoreValue : 0)
+  const hasExplicitNullValue = hasExplicitNullScore(raw)
+  const score = normalizeRiskScore(hasScoreValue ? rawScoreValue : 0)
 
   const rawLevel = pickFirst(
     raw,
@@ -574,6 +592,7 @@ export function mapLatestScore(raw = {}, options = {}) {
     assetId: assetId || buildFallbackId('asset', score),
     score,
     hasScoreValue,
+    hasExplicitNullValue,
     level,
     status: getRiskStatusLabel(level, locale),
     riskStatus: getRiskStatusLabel(level, locale),
@@ -618,10 +637,12 @@ export function mapDashboardRow(assetInput = {}, scoreInput = {}, options = {}) 
     score.id ||
     buildFallbackId('asset', asset.name || score.score)
 
-  const fallbackImpactScore = asset.impactScoreAsRiskScore
+  const hasExplicitNullValue =
+    score.hasExplicitNullValue ?? hasExplicitNullScore(score.raw || scoreInput)
+
   const resolvedScore = score.hasScoreValue
-    ? clampRiskScore(score.score)
-    : clampRiskScore(fallbackImpactScore ?? 0)
+    ? normalizeRiskScore(score.score)
+    : 0
 
   const level = getRiskLevel(score.level || score.status || resolvedScore)
   const riskStatus = getRiskStatusLabel(level, locale)
@@ -635,8 +656,8 @@ export function mapDashboardRow(assetInput = {}, scoreInput = {}, options = {}) 
     score: resolvedScore,
     scoreSource: score.hasScoreValue
       ? 'latest_score'
-      : fallbackImpactScore !== null && fallbackImpactScore !== undefined
-        ? 'impact_score'
+      : hasExplicitNullValue
+        ? 'no_score'
         : 'default',
     level,
     status: riskStatus,

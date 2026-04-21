@@ -124,6 +124,7 @@ export default function TopRiskTable({ rows = [], onOpenPreview }) {
               filteredRows.map((row) => {
                 const riskStatus = getRiskStatus(row)
                 const assetStatusLabel = getAssetStatusLabel(row)
+                const scoreDisplay = row?.score ?? 0
 
                 return (
                   <tr
@@ -133,7 +134,7 @@ export default function TopRiskTable({ rows = [], onOpenPreview }) {
                   >
                     <td>{row.name ?? '-'}</td>
                     <td>{row.type ?? '-'}</td>
-                    <td>{row.score ?? 0}</td>
+                    <td>{scoreDisplay}</td>
                     <td>{assetStatusLabel}</td>
                     <td>{row.updatedAt ?? '-'}</td>
                   </tr>
